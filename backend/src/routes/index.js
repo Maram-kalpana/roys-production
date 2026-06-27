@@ -1,17 +1,16 @@
-import { Router } from 'express'
-import authRoutes from './auth.routes.js'
-import dashboardRoutes from './dashboard.routes.js'
-import accountsRoutes from './accounts.routes.js'
-import floorsRoutes from './floors.routes.js'
-import roomsRoutes from './rooms.routes.js'
-import bedsRoutes from './beds.routes.js'
-import customersRoutes from './customers.routes.js'
-import bookingsRoutes from './bookings.routes.js'
-import monthlyPaymentsRoutes from './monthlyPayments.routes.js'
-import expensesRoutes from './expenses.routes.js'
-import settingsRoutes from './settings.routes.js'
-import uploadsRoutes from './uploads.routes.js'
-
+const { Router } = require('express')
+const authRoutes = require('./auth.routes')
+const dashboardRoutes = require('./dashboard.routes')
+const accountsRoutes = require('./accounts.routes')
+const floorsRoutes = require('./floors.routes')
+const roomsRoutes = require('./rooms.routes')
+const bedsRoutes = require('./beds.routes')
+const customersRoutes = require('./customers.routes')
+const bookingsRoutes = require('./bookings.routes')
+const monthlyPaymentsRoutes = require('./monthlyPayments.routes')
+const expensesRoutes = require('./expenses.routes')
+const settingsRoutes = require('./settings.routes')
+const uploadsRoutes = require('./uploads.routes')
 const router = Router()
 
 router.get('/health', (_req, res) => {
@@ -31,4 +30,4 @@ router.use('/expenses', expensesRoutes)
 router.use('/settings', settingsRoutes)
 router.use('/uploads', uploadsRoutes)
 
-export default router
+module.exports = router

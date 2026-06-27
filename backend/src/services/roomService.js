@@ -1,6 +1,5 @@
-import { query, getConnection } from '../config/db.js'
-import { generateId } from '../utils/helpers.js'
-
+const { query, getConnection } = require('../config/db')
+const { generateId } = require('../utils/helpers')
 const mapRoom = (row) => ({
   id: row.id,
   floorId: row.floor_id,
@@ -58,7 +57,7 @@ const normalizeBeds = (data) => {
 const duplicateRoomError = (floorNumber, roomNumber) =>
   Object.assign(new Error(`Room ${roomNumber} already exists on Floor ${floorNumber}`), { status: 409 })
 
-export const listRooms = async ({ search, floorNumber } = {}) => {
+const listRooms = async ({ search, floorNumber } = {}) => {
   let sql = 'SELECT r.* FROM rooms r WHERE 1=1'
   const params = []
   if (floorNumber) { sql += ' AND r.floor_number = ?'; params.push(floorNumber) }
@@ -69,7 +68,7 @@ export const listRooms = async ({ search, floorNumber } = {}) => {
   return rows.map(mapRoom)
 }
 
-export const listBeds = async ({ status, floorNumber, roomNumber } = {}) => {
+const listBeds = async ({ status, floorNumber, roomNumber } = {}) => {
   let sql = 'SELECT * FROM beds WHERE 1=1'
   const params = []
   if (status) { sql += ' AND status = ?'; params.push(status) }
@@ -80,7 +79,7 @@ export const listBeds = async ({ status, floorNumber, roomNumber } = {}) => {
   return rows.map(mapBed)
 }
 
-export const createRoom = async (data) => {
+const createRoom = async (data) => {
   const [existing] = await query(
     'SELECT id FROM rooms WHERE floor_number = ? AND room_number = ? LIMIT 1',
     [data.floorNumber, data.roomNumber],
@@ -143,7 +142,7 @@ export const createRoom = async (data) => {
   }
 }
 
-export const updateRoom = async (id, data) => {
+const updateRoom = async (id, data) => {
   const [currentRows] = await query('SELECT * FROM rooms WHERE id = ?', [id])
   const current = currentRows[0]
   if (!current) throw Object.assign(new Error('Room not found'), { status: 404 })
@@ -217,7 +216,7 @@ export const updateRoom = async (id, data) => {
   }
 }
 
-export const deleteRoom = async (id) => {
+const deleteRoom = async (id) => {
   const [bedRows] = await query('SELECT * FROM beds WHERE room_id = ?', [id])
   const inUse = bedRows.some((b) => b.status === 'occupied' || b.customer_id)
   if (inUse) {
@@ -231,7 +230,7 @@ export const deleteRoom = async (id) => {
   return true
 }
 
-export const updateBed = async (bedId, data) => {
+const updateBed = async (bedId, data) => {
   const [rows] = await query('SELECT * FROM beds WHERE id = ?', [bedId])
   const bed = rows[0]
   if (!bed) {
@@ -258,7 +257,7 @@ export const updateBed = async (bedId, data) => {
   return mapBed(updated[0])
 }
 
-export const deleteBed = async (bedId) => {
+const deleteBed = async (bedId) => {
   const [rows] = await query('SELECT * FROM beds WHERE id = ?', [bedId])
   const bed = rows[0]
   if (!bed) {
@@ -286,7 +285,7 @@ export const deleteBed = async (bedId) => {
   return true
 }
 
-export const getRoomById = async (id) => {
+const getRoomById = async (id) => {
   const [rooms] = await query('SELECT * FROM rooms WHERE id = ?', [id])
   if (!rooms[0]) return null
   const [bedRows] = await query('SELECT * FROM beds WHERE room_id = ? ORDER BY bed_number', [id])
@@ -297,4 +296,18 @@ export const getRoomById = async (id) => {
   }
 }
 
-export { mapBed, mapRoom }
+module.exports = {
+  mapBedForRoom,
+  normalizeBeds,
+  duplicateRoomError,
+  listRooms,
+  listBeds,
+  createRoom,
+  updateRoom,
+  deleteRoom,
+  updateBed,
+  deleteBed,
+  getRoomById,
+  mapBed,
+  mapRoom,
+}

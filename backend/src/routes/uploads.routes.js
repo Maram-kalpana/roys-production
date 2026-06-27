@@ -1,12 +1,11 @@
-import { Router } from 'express'
-import { authenticate } from '../middleware/auth.js'
-import { anyAdmin } from '../middleware/role.js'
-import { upload } from '../middleware/upload.js'
-import * as uploadController from '../controllers/uploadController.js'
-
+const { Router } = require('express')
+const { authenticate } = require('../middleware/auth')
+const { anyAdmin } = require('../middleware/role')
+const { upload } = require('../middleware/upload')
+const uploadController = require('../controllers/uploadController')
 const router = Router()
 
 router.use(authenticate, anyAdmin)
 router.post('/', upload.single('file'), uploadController.uploadFile)
 
-export default router
+module.exports = router

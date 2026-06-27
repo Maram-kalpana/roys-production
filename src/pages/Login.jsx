@@ -162,11 +162,7 @@ const Login = () => {
                 </Button>
               </Box>
 
-              <div className="mt-5 rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600 space-y-1.5">
-                <p className="font-semibold text-slate-700">Demo credentials</p>
-                <p><span className="font-medium">Super Admin:</span> superadmin / SuperAdmin@123</p>
-                <p><span className="font-medium">Admin:</span> admin / Admin@123</p>
-              </div>
+              
             </div>
           </div>
 

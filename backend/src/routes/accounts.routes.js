@@ -1,12 +1,11 @@
-import { Router } from 'express'
-import { authenticate } from '../middleware/auth.js'
-import { superAdminOnly } from '../middleware/role.js'
-import * as dashboardController from '../controllers/dashboardController.js'
-
+const { Router } = require('express')
+const { authenticate } = require('../middleware/auth')
+const { superAdminOnly } = require('../middleware/role')
+const dashboardController = require('../controllers/dashboardController')
 const router = Router()
 
 router.use(authenticate, superAdminOnly)
 router.get('/summary', dashboardController.accountsSummary)
 router.get('/profit-loss', dashboardController.profitLoss)
 
-export default router
+module.exports = router

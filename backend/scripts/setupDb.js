@@ -1,5 +1,5 @@
-import dotenv from 'dotenv'
-import { initializeDatabase } from '../src/config/initDb.js'
+const dotenv = require('dotenv')
+const { initializeDatabase } = require('../src/config/initDb')
 
 dotenv.config()
 
@@ -15,3 +15,8 @@ run().catch((err) => {
   console.error(err)
   process.exit(1)
 })
+
+module.exports = {
+  dotenv,
+  run,
+}

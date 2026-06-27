@@ -1,6 +1,5 @@
-import { query } from '../config/db.js'
-
-export const getDashboardStats = async () => {
+const { query } = require('../config/db')
+const getDashboardStats = async () => {
   const [[bedStats]] = await query(`
     SELECT
       COUNT(*) AS totalBeds,
@@ -70,7 +69,7 @@ export const getDashboardStats = async () => {
   }
 }
 
-export const getMonthlyPaymentStats = async () => {
+const getMonthlyPaymentStats = async () => {
   const [[stats]] = await query(`
     SELECT
       (SELECT COUNT(*) FROM monthly_tenants) AS monthlyTenants,
@@ -87,7 +86,7 @@ export const getMonthlyPaymentStats = async () => {
   }
 }
 
-export const getVacancyStats = async () => {
+const getVacancyStats = async () => {
   const [[stats]] = await query(`
     SELECT
       SUM(status = 'vacant') AS availableBeds,
@@ -102,4 +101,10 @@ export const getVacancyStats = async () => {
     occupiedBeds: Number(stats.occupiedBeds),
     vacantRooms: Number(stats.vacantRooms),
   }
+}
+
+module.exports = {
+  getDashboardStats,
+  getMonthlyPaymentStats,
+  getVacancyStats,
 }

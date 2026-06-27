@@ -1,8 +1,7 @@
-import { Router } from 'express'
-import { authenticate } from '../middleware/auth.js'
-import { anyAdmin } from '../middleware/role.js'
-import * as customerController from '../controllers/customerController.js'
-
+const { Router } = require('express')
+const { authenticate } = require('../middleware/auth')
+const { anyAdmin } = require('../middleware/role')
+const customerController = require('../controllers/customerController')
 const router = Router()
 
 router.use(authenticate, anyAdmin)
@@ -13,4 +12,4 @@ router.put('/:id', customerController.update)
 router.delete('/:id', customerController.remove)
 router.post('/:id/checkout', customerController.checkout)
 
-export default router
+module.exports = router

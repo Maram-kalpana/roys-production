@@ -1,16 +1,12 @@
-import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { env } from './config/env.js'
-import routes from './routes/index.js'
-import { notFound, errorHandler } from './middleware/errorHandler.js'
-import logger from './config/logger.js'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
+const express = require('express')
+const cors = require('cors')
+const helmet = require('helmet')
+const rateLimit = require('express-rate-limit')
+const path = require('path')
+const { env } = require('./config/env')
+const routes = require('./routes/index')
+const { notFound, errorHandler } = require('./middleware/errorHandler')
+const logger = require('./config/logger')
 const app = express()
 
 app.set('trust proxy', 1)
@@ -43,4 +39,4 @@ app.use('/api', routes)
 app.use(notFound)
 app.use(errorHandler)
 
-export default app
+module.exports = app

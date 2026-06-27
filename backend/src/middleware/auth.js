@@ -1,13 +1,12 @@
-import jwt from 'jsonwebtoken'
-import { env } from '../config/env.js'
-
-export const signToken = (payload) =>
+const jwt = require('jsonwebtoken')
+const { env } = require('../config/env')
+const signToken = (payload) =>
   jwt.sign(payload, env.jwt.secret, { expiresIn: env.jwt.expiresIn })
 
-export const verifyToken = (token) =>
+const verifyToken = (token) =>
   jwt.verify(token, env.jwt.secret)
 
-export const authenticate = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     const header = req.headers.authorization
     if (!header?.startsWith('Bearer ')) {
@@ -22,7 +21,7 @@ export const authenticate = async (req, res, next) => {
   }
 }
 
-export const optionalAuth = async (req, res, next) => {
+const optionalAuth = async (req, res, next) => {
   try {
     const header = req.headers.authorization
     if (header?.startsWith('Bearer ')) {
@@ -32,4 +31,12 @@ export const optionalAuth = async (req, res, next) => {
     // ignore
   }
   next()
+}
+
+module.exports = {
+  jwt,
+  signToken,
+  verifyToken,
+  authenticate,
+  optionalAuth,
 }

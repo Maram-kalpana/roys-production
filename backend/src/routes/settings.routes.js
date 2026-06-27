@@ -1,12 +1,11 @@
-import { Router } from 'express'
-import { authenticate } from '../middleware/auth.js'
-import { anyAdmin } from '../middleware/role.js'
-import * as settingsController from '../controllers/settingsController.js'
-
+const { Router } = require('express')
+const { authenticate } = require('../middleware/auth')
+const { anyAdmin } = require('../middleware/role')
+const settingsController = require('../controllers/settingsController')
 const router = Router()
 
 router.use(authenticate, anyAdmin)
 router.get('/', settingsController.get)
 router.put('/', settingsController.update)
 
-export default router
+module.exports = router

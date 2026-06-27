@@ -1,5 +1,5 @@
-import mysql from 'mysql2/promise'
-import { env } from './env.js'
+const mysql = require('mysql2/promise')
+const { env } = require('./env')
 
 const pool = mysql.createPool({
   host: env.db.host,
@@ -14,8 +14,12 @@ const pool = mysql.createPool({
   timezone: '+00:00',
 })
 
-export const query = (sql, params = []) => pool.execute(sql, params)
+// Save the real driver method before we shadow it
+const rawGetConnection = pool.getConnection.bind(pool)
 
-export const getConnection = () => pool.getConnection()
+const query = (sql, params = []) => pool.execute(sql, params)
+const getConnection = () => rawGetConnection()
 
-export default pool
+module.exports = pool
+module.exports.query = query
+module.exports.getConnection = getConnection

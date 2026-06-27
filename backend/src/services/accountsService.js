@@ -1,5 +1,4 @@
-import { query } from '../config/db.js'
-
+const { query } = require('../config/db')
 const normalizeType = (type) => (type || 'Cash').toLowerCase()
 
 const addToBucket = (bucket, type, amount) => {
@@ -40,7 +39,7 @@ const mergePeriodRows = (bookingPayments, monthlyPayments, extendedPayments = []
     .map((row, i) => ({ id: row.period || `row-${i}`, ...row }))
 }
 
-export const getAccountsSummary = async ({ view = 'day', date } = {}) => {
+const getAccountsSummary = async ({ view = 'day', date } = {}) => {
   const periodExpr = view === 'month'
     ? "DATE_FORMAT(payment_date, '%Y-%m')"
     : 'DATE(payment_date)'
@@ -135,7 +134,7 @@ export const getAccountsSummary = async ({ view = 'day', date } = {}) => {
   }
 }
 
-export const getProfitLossReport = async ({ year } = {}) => {
+const getProfitLossReport = async ({ year } = {}) => {
   const y = year || new Date().getFullYear()
 
   const [monthlyRevenue] = await query(`
@@ -165,4 +164,13 @@ export const getProfitLossReport = async ({ year } = {}) => {
   })
 
   return months
+}
+
+module.exports = {
+  normalizeType,
+  addToBucket,
+  aggregateRows,
+  mergePeriodRows,
+  getAccountsSummary,
+  getProfitLossReport,
 }

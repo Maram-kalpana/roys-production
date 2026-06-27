@@ -1,4 +1,4 @@
-export const requireRole = (...roles) => (req, res, next) => {
+const requireRole = (...roles) => (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Authentication required' })
   }
@@ -8,6 +8,12 @@ export const requireRole = (...roles) => (req, res, next) => {
   next()
 }
 
-export const superAdminOnly = requireRole('super_admin')
+const superAdminOnly = requireRole('super_admin')
 
-export const anyAdmin = requireRole('super_admin', 'admin')
+const anyAdmin = requireRole('super_admin', 'admin')
+
+module.exports = {
+  requireRole,
+  superAdminOnly,
+  anyAdmin,
+}

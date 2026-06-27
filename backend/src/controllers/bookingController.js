@@ -1,19 +1,26 @@
-import * as bookingService from '../services/bookingService.js'
-import { asyncHandler, success } from '../utils/helpers.js'
-
-export const list = asyncHandler(async (req, res) => {
+const bookingService = require('../services/bookingService')
+const { asyncHandler, success } = require('../utils/helpers')
+const list = asyncHandler(async (req, res) => {
   success(res, await bookingService.listBookings({ ...req.query, role: req.user.role }))
 })
 
-export const create = asyncHandler(async (req, res) => {
+const create = asyncHandler(async (req, res) => {
   success(res, await bookingService.createBooking(req.body), 201)
 })
 
-export const update = asyncHandler(async (req, res) => {
+const update = asyncHandler(async (req, res) => {
   success(res, await bookingService.updateBooking(req.params.id, req.body))
 })
 
-export const remove = asyncHandler(async (req, res) => {
+const remove = asyncHandler(async (req, res) => {
   await bookingService.deleteBooking(req.params.id)
   success(res, { deleted: true })
 })
+
+module.exports = {
+  bookingService,
+  list,
+  create,
+  update,
+  remove,
+}

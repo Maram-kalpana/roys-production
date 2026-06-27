@@ -1,8 +1,7 @@
-import { Router } from 'express'
-import { authenticate } from '../middleware/auth.js'
-import { anyAdmin } from '../middleware/role.js'
-import * as monthlyController from '../controllers/monthlyController.js'
-
+const { Router } = require('express')
+const { authenticate } = require('../middleware/auth')
+const { anyAdmin } = require('../middleware/role')
+const monthlyController = require('../controllers/monthlyController')
 const router = Router()
 
 router.use(authenticate, anyAdmin)
@@ -19,4 +18,4 @@ router.put('/:id/add-payment', monthlyController.addPayment)
 router.post('/:id/mark-paid', monthlyController.markPaid)
 router.delete('/:id', monthlyController.remove)
 
-export default router
+module.exports = router

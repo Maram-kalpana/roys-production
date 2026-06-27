@@ -1,6 +1,5 @@
-import { query, getConnection } from '../config/db.js'
-import { generateId } from '../utils/helpers.js'
-
+const { query, getConnection } = require('../config/db')
+const { generateId } = require('../utils/helpers')
 const toDateTimeOrNull = (value) => (value && value !== '' ? value : null)
 
 const mapBooking = (row, payments = [], shifts = []) => ({
@@ -37,7 +36,7 @@ const mapBooking = (row, payments = [], shifts = []) => ({
   shifts,
 })
 
-export const listBookings = async ({ status, search, checkInDate, paymentStatus, role } = {}) => {
+const listBookings = async ({ status, search, checkInDate, paymentStatus, role } = {}) => {
   let sql = 'SELECT * FROM bookings WHERE 1=1'
   const params = []
   if (role === 'super_admin') sql += ' AND status IN ("active","reserved","booked")'
@@ -71,7 +70,7 @@ export const listBookings = async ({ status, search, checkInDate, paymentStatus,
   }))
 }
 
-export const createBooking = async (data) => {
+const createBooking = async (data) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -150,7 +149,7 @@ export const createBooking = async (data) => {
   }
 }
 
-export const updateBooking = async (id, data) => {
+const updateBooking = async (id, data) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -300,7 +299,7 @@ export const updateBooking = async (id, data) => {
   }
 }
 
-export const deleteBooking = async (id) => {
+const deleteBooking = async (id) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -323,4 +322,11 @@ export const deleteBooking = async (id) => {
   }
 }
 
-export { mapBooking }
+module.exports = {
+  toDateTimeOrNull,
+  listBookings,
+  createBooking,
+  updateBooking,
+  deleteBooking,
+  mapBooking,
+}

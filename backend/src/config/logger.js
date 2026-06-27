@@ -4,4 +4,4 @@ const logger = {
   error: (...args) => console.error('[ERROR]', ...args),
 }
 
-export default logger
+module.exports = logger

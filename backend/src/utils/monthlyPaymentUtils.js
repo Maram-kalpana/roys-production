@@ -1,8 +1,8 @@
-export const PAYMENT_MODES = ['Cash', 'UPI', 'Card', 'Bank Transfer']
+const PAYMENT_MODES = ['Cash', 'UPI', 'Card', 'Bank Transfer']
 
-export const MODES_REQUIRING_TXN = ['UPI', 'Card', 'Bank Transfer']
+const MODES_REQUIRING_TXN = ['UPI', 'Card', 'Bank Transfer']
 
-export const computePaymentStatus = (totalRent, totalPaid) => {
+const computePaymentStatus = (totalRent, totalPaid) => {
   const rent = Number(totalRent) || 0
   const paid = Number(totalPaid) || 0
   if (paid <= 0) return 'pending'
@@ -10,7 +10,7 @@ export const computePaymentStatus = (totalRent, totalPaid) => {
   return 'partial'
 }
 
-export const validateSplitPayments = (payments, balanceRemaining) => {
+const validateSplitPayments = (payments, balanceRemaining) => {
   if (!Array.isArray(payments) || payments.length === 0) {
     throw Object.assign(new Error('At least one payment is required'), { status: 400 })
   }
@@ -45,7 +45,7 @@ export const validateSplitPayments = (payments, balanceRemaining) => {
   return batchTotal
 }
 
-export const parseMonthYear = (monthLabel) => {
+const parseMonthYear = (monthLabel) => {
   const d = new Date(`${monthLabel} 1`)
   if (Number.isNaN(d.getTime())) {
     const now = new Date()
@@ -56,4 +56,12 @@ export const parseMonthYear = (monthLabel) => {
     year: d.getFullYear(),
     monthLabel,
   }
+}
+
+module.exports = {
+  PAYMENT_MODES,
+  MODES_REQUIRING_TXN,
+  computePaymentStatus,
+  validateSplitPayments,
+  parseMonthYear,
 }

@@ -1,14 +1,10 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import mysql from 'mysql2/promise'
-import bcrypt from 'bcrypt'
-import { env } from './env.js'
-import logger from './logger.js'
-import { runMigrations } from './runMigrations.js'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
+const fs = require('fs')
+const path = require('path')
+const mysql = require('mysql2/promise')
+const bcrypt = require('bcrypt')
+const { env } = require('./env')
+const logger = require('./logger')
+const { runMigrations } = require('./runMigrations')
 const INDEX_DEFINITIONS = [
   ['beds', 'idx_beds_status', 'status'],
   ['customers', 'idx_customers_status', 'status'],
@@ -39,7 +35,7 @@ const indexExists = async (conn, dbName, tableName, indexName) => {
   return Number(rows[0].count) > 0
 }
 
-export const ensureIndexes = async (conn, dbName) => {
+const ensureIndexes = async (conn, dbName) => {
   for (const [table, indexName, columns] of INDEX_DEFINITIONS) {
     const exists = await indexExists(conn, dbName, table, indexName)
     if (exists) {
@@ -66,7 +62,7 @@ const seedDefaultAdmins = async (conn) => {
   logger.info('Default admin accounts seeded')
 }
 
-export const initializeDatabase = async () => {
+const initializeDatabase = async () => {
   console.log('initializeDatabase called')
   logger.info('initializeDatabase called')
 
@@ -119,4 +115,18 @@ export const initializeDatabase = async () => {
   } finally {
     await pool.end()
   }
+}
+
+module.exports = {
+  fs,
+  path,
+  mysql,
+  bcrypt,
+  logger,
+  INDEX_DEFINITIONS,
+  getTableCount,
+  indexExists,
+  seedDefaultAdmins,
+  ensureIndexes,
+  initializeDatabase,
 }

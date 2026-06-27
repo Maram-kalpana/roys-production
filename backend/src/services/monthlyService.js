@@ -1,11 +1,10 @@
-import { query, getConnection } from '../config/db.js'
-import { generateId, getMonthYearLabel } from '../utils/helpers.js'
-import {
+const { query, getConnection } = require('../config/db')
+const { generateId, getMonthYearLabel } = require('../utils/helpers')
+const {
   computePaymentStatus,
   validateSplitPayments,
   parseMonthYear,
-} from '../utils/monthlyPaymentUtils.js'
-
+} = require('../utils/monthlyPaymentUtils')
 const mapSplit = (row) => ({
   id: row.id,
   amount: Number(row.amount),
@@ -124,7 +123,7 @@ const syncTenantStatus = async (tenantId) => {
   )
 }
 
-export const listTenants = async ({ status } = {}) => {
+const listTenants = async ({ status } = {}) => {
   let sql = `SELECT t.*, c.phone FROM monthly_tenants t
     LEFT JOIN customers c ON c.id = t.customer_id WHERE 1=1`
   const params = []
@@ -138,7 +137,7 @@ export const listTenants = async ({ status } = {}) => {
   }))
 }
 
-export const getTenant = async (tenantId) => {
+const getTenant = async (tenantId) => {
   const [rows] = await query(
     `SELECT t.*, c.phone FROM monthly_tenants t
      LEFT JOIN customers c ON c.id = t.customer_id WHERE t.id = ?`,
@@ -149,7 +148,7 @@ export const getTenant = async (tenantId) => {
   return mapTenant(rows[0], history, splitsByPayment)
 }
 
-export const listDues = async ({ status, search } = {}) => {
+const listDues = async ({ status, search } = {}) => {
   let sql = `
     SELECT mp.*, t.customer_name, t.monthly_rent AS tenant_rent, c.phone
     FROM monthly_payments mp
@@ -181,7 +180,7 @@ export const listDues = async ({ status, search } = {}) => {
   }))
 }
 
-export const addSplitPayment = async (tenantId, { month, payments, paymentStatus: forcedStatus }) => {
+const addSplitPayment = async (tenantId, { month, payments, paymentStatus: forcedStatus }) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -279,7 +278,7 @@ export const addSplitPayment = async (tenantId, { month, payments, paymentStatus
 }
 
 /** @deprecated — use addSplitPayment */
-export const markTenantPaid = async (tenantId, body) => {
+const markTenantPaid = async (tenantId, body) => {
   if (body.payments?.length) {
     return addSplitPayment(tenantId, { month: body.month, payments: body.payments })
   }
@@ -295,7 +294,7 @@ export const markTenantPaid = async (tenantId, body) => {
   })
 }
 
-export const getCollectionSummary = async ({ month, year } = {}) => {
+const getCollectionSummary = async ({ month, year } = {}) => {
   const now = new Date()
   const targetMonth = month || now.getMonth() + 1
   const targetYear = year || now.getFullYear()
@@ -343,7 +342,7 @@ export const getCollectionSummary = async ({ month, year } = {}) => {
   }
 }
 
-export const createTenant = async (data) => {
+const createTenant = async (data) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -414,7 +413,7 @@ export const createTenant = async (data) => {
   }
 }
 
-export const deleteTenant = async (tenantId) => {
+const deleteTenant = async (tenantId) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -442,14 +441,14 @@ export const deleteTenant = async (tenantId) => {
   }
 }
 
-export const listPending = async () => {
+const listPending = async () => {
   await refreshPendingStatuses()
   return listDues({ status: 'pending' })
 }
 
-export const listPaid = async () => listDues({ status: 'paid' })
+const listPaid = async () => listDues({ status: 'paid' })
 
-export const updateTenant = async (id, data) => {
+const updateTenant = async (id, data) => {
   const nullish = (v) => (v === undefined ? null : v)
   const conn = await getConnection()
 
@@ -549,7 +548,7 @@ export const updateTenant = async (id, data) => {
   }
 }
 
-export const refreshPendingStatuses = async () => {
+const refreshPendingStatuses = async () => {
   await query(`
     UPDATE monthly_payments
     SET status = CASE
@@ -562,4 +561,25 @@ export const refreshPendingStatuses = async () => {
   `)
 }
 
-export { mapTenant, mapPaymentRecord }
+module.exports = {
+  mapSplit,
+  isAdvanceOnlySplit,
+  resolveLastPaidRentMonth,
+  loadSplitsForPayments,
+  loadTenantHistory,
+  syncTenantStatus,
+  listTenants,
+  getTenant,
+  listDues,
+  addSplitPayment,
+  markTenantPaid,
+  getCollectionSummary,
+  createTenant,
+  deleteTenant,
+  listPending,
+  listPaid,
+  updateTenant,
+  refreshPendingStatuses,
+  mapTenant,
+  mapPaymentRecord,
+}

@@ -1,7 +1,6 @@
-import { asyncHandler, success } from '../utils/helpers.js'
-import { SUBDIRS } from '../middleware/upload.js'
-
-export const uploadFile = asyncHandler(async (req, res) => {
+const { asyncHandler, success } = require('../utils/helpers')
+const { SUBDIRS } = require('../middleware/upload')
+const uploadFile = asyncHandler(async (req, res) => {
   console.log('req.files:', req.file ? [req.file] : req.files)
   console.log('req.body:', req.body)
 
@@ -19,3 +18,7 @@ export const uploadFile = asyncHandler(async (req, res) => {
     field,
   })
 })
+
+module.exports = {
+  uploadFile,
+}

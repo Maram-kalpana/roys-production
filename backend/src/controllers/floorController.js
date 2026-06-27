@@ -1,6 +1,10 @@
-import * as floorService from '../services/floorService.js'
-import { asyncHandler, success } from '../utils/helpers.js'
-
-export const list = asyncHandler(async (_req, res) => {
+const floorService = require('../services/floorService')
+const { asyncHandler, success } = require('../utils/helpers')
+const list = asyncHandler(async (_req, res) => {
   success(res, await floorService.listFloors())
 })
+
+module.exports = {
+  floorService,
+  list,
+}

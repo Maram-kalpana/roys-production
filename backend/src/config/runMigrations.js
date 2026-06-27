@@ -1,8 +1,5 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const fs = require('fs')
+const path = require('path')
 const MIGRATIONS_DIR = path.join(__dirname, '../../database/migrations')
 
 const CUSTOMER_COLUMNS = [
@@ -34,7 +31,7 @@ const EXPENSE_COLUMNS = [
   ['receipt_url', 'TEXT NULL'],
 ]
 
-export const runMigrations = async (conn, dbName, logger = console) => {
+const runMigrations = async (conn, dbName, logger = console) => {
   for (const [column, definition] of CUSTOMER_COLUMNS) {
     const exists = await columnExists(conn, dbName, 'customers', column)
     if (!exists) {
@@ -60,4 +57,15 @@ export const runMigrations = async (conn, dbName, logger = console) => {
       await conn.query(`ALTER TABLE expenses ADD COLUMN ${column} ${definition}`)
     }
   }
+}
+
+module.exports = {
+  fs,
+  path,
+  MIGRATIONS_DIR,
+  CUSTOMER_COLUMNS,
+  columnExists,
+  tableExists,
+  EXPENSE_COLUMNS,
+  runMigrations,
 }

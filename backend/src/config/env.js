@@ -1,7 +1,7 @@
-import dotenv from 'dotenv'
+const dotenv = require('dotenv')
 dotenv.config()
 
-export const env = {
+const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT) || 5000,
   db: {
@@ -19,3 +19,5 @@ export const env = {
   uploadDir: process.env.UPLOAD_DIR || 'uploads',
   maxFileSize: Number(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024,
 }
+
+module.exports = { env }

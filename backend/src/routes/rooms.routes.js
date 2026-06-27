@@ -1,8 +1,7 @@
-import { Router } from 'express'
-import { authenticate } from '../middleware/auth.js'
-import { anyAdmin } from '../middleware/role.js'
-import * as roomController from '../controllers/roomController.js'
-
+const { Router } = require('express')
+const { authenticate } = require('../middleware/auth')
+const { anyAdmin } = require('../middleware/role')
+const roomController = require('../controllers/roomController')
 const router = Router()
 
 router.use(authenticate, anyAdmin)
@@ -12,4 +11,4 @@ router.post('/', roomController.createRoom)
 router.put('/:id', roomController.updateRoom)
 router.delete('/:id', roomController.deleteRoom)
 
-export default router
+module.exports = router

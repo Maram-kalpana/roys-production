@@ -2,7 +2,6 @@
   "name": "roys-hotel-api",
   "version": "1.0.0",
   "description": "Roy's Book My Square Coliving - Hotel Management API",
-  "type": "module",
   "main": "server.js",
   "engines": {
     "node": ">=18.0.0"
@@ -22,6 +21,6 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.12.0"
+    "mysql2": "^3.22.5"
   }
 }

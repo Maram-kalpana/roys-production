@@ -1,10 +1,7 @@
-import multer from 'multer'
-import path from 'node:path'
-import fs from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { env } from '../config/env.js'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const multer = require('multer')
+const path = require('path')
+const fs = require('fs')
+const { env } = require('../config/env')
 const uploadRoot = path.join(__dirname, '../', env.uploadDir)
 
 const SUBDIRS = {
@@ -46,10 +43,14 @@ const fileFilter = (_req, file, cb) => {
   else cb(new Error('Only JPG, PNG, and PDF files are allowed'))
 }
 
-export const upload = multer({
+const upload = multer({
   storage,
   limits: { fileSize: env.maxFileSize },
   fileFilter,
 })
 
-export { uploadRoot, SUBDIRS }
+module.exports = {
+  upload,
+  uploadRoot,
+  SUBDIRS,
+}

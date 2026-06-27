@@ -1,8 +1,7 @@
-import { query } from '../config/db.js'
-import { comparePassword, hashPassword, generateId } from '../utils/helpers.js'
-import { signToken } from '../middleware/auth.js'
-
-export const loginAdmin = async (username, password) => {
+const { query } = require('../config/db')
+const { comparePassword, hashPassword, generateId } = require('../utils/helpers')
+const { signToken } = require('../middleware/auth')
+const loginAdmin = async (username, password) => {
   const [rows] = await query(
     `SELECT a.id, a.username, a.password_hash, a.name, a.email, r.slug AS role
      FROM admins a JOIN roles r ON r.id = a.role_id
@@ -25,7 +24,7 @@ export const loginAdmin = async (username, password) => {
   return { token, user }
 }
 
-export const getAdminById = async (id) => {
+const getAdminById = async (id) => {
   const [rows] = await query(
     `SELECT a.id, a.name, a.email, r.slug AS role
      FROM admins a JOIN roles r ON r.id = a.role_id
@@ -35,7 +34,7 @@ export const getAdminById = async (id) => {
   return rows[0] || null
 }
 
-export const registerAdmin = async ({ username, password, name, email, role = 'admin' }) => {
+const registerAdmin = async ({ username, password, name, email, role = 'admin' }) => {
   const [existing] = await query('SELECT id FROM admins WHERE username = ?', [username])
   if (existing.length) throw Object.assign(new Error('Username already exists'), { status: 409 })
 
@@ -51,4 +50,10 @@ export const registerAdmin = async ({ username, password, name, email, role = 'a
 
   const user = { id, name, email: email || `${username}@hotel.com`, role }
   return { token: signToken(user), user }
+}
+
+module.exports = {
+  loginAdmin,
+  getAdminById,
+  registerAdmin,
 }

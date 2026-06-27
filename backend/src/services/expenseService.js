@@ -1,7 +1,6 @@
-import { query } from '../config/db.js'
-import { generateId, mapExpenseFromFrontend, mapExpenseToFrontend } from '../utils/helpers.js'
-
-export const listExpenses = async ({ date, search } = {}) => {
+const { query } = require('../config/db')
+const { generateId, mapExpenseFromFrontend, mapExpenseToFrontend } = require('../utils/helpers')
+const listExpenses = async ({ date, search } = {}) => {
   let sql = 'SELECT * FROM expenses WHERE 1=1'
   const params = []
 
@@ -20,12 +19,12 @@ export const listExpenses = async ({ date, search } = {}) => {
   return rows.map(mapExpenseToFrontend)
 }
 
-export const getExpenseById = async (id) => {
+const getExpenseById = async (id) => {
   const [rows] = await query('SELECT * FROM expenses WHERE id = ?', [id])
   return rows[0] ? mapExpenseToFrontend(rows[0]) : null
 }
 
-export const createExpense = async (body, createdBy) => {
+const createExpense = async (body, createdBy) => {
   const data = mapExpenseFromFrontend(body)
   const id = generateId('exp')
   await query(
@@ -36,7 +35,7 @@ export const createExpense = async (body, createdBy) => {
   return getExpenseById(id)
 }
 
-export const updateExpense = async (id, body) => {
+const updateExpense = async (id, body) => {
   const data = mapExpenseFromFrontend(body)
   await query(
     `UPDATE expenses SET expense_name=?, category=?, amount=?, expense_date=?, notes=?, receipt_url=? WHERE id=?`,
@@ -45,12 +44,21 @@ export const updateExpense = async (id, body) => {
   return getExpenseById(id)
 }
 
-export const deleteExpense = async (id) => {
+const deleteExpense = async (id) => {
   const [result] = await query('DELETE FROM expenses WHERE id = ?', [id])
   return result.affectedRows > 0
 }
 
-export const getTotalExpenses = async () => {
+const getTotalExpenses = async () => {
   const [rows] = await query('SELECT COALESCE(SUM(amount), 0) AS total FROM expenses')
   return Number(rows[0].total)
+}
+
+module.exports = {
+  listExpenses,
+  getExpenseById,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+  getTotalExpenses,
 }

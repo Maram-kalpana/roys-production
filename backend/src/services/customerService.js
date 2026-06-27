@@ -1,6 +1,5 @@
-import { query, getConnection } from '../config/db.js'
-import { generateId } from '../utils/helpers.js'
-
+const { query, getConnection } = require('../config/db')
+const { generateId } = require('../utils/helpers')
 const mapCustomer = (row) => ({
   id: row.id,
   name: row.name,
@@ -33,7 +32,7 @@ const mapCustomer = (row) => ({
   joiningDate: row.joining_date,
 })
 
-export const listCustomers = async ({ status, search, checkInDate } = {}) => {
+const listCustomers = async ({ status, search, checkInDate } = {}) => {
   let sql = 'SELECT * FROM customers WHERE 1=1'
   const params = []
   if (status) { sql += ' AND status = ?'; params.push(status) }
@@ -48,12 +47,12 @@ export const listCustomers = async ({ status, search, checkInDate } = {}) => {
   return rows.map(mapCustomer)
 }
 
-export const getCustomerById = async (id) => {
+const getCustomerById = async (id) => {
   const [rows] = await query('SELECT * FROM customers WHERE id = ?', [id])
   return rows[0] ? mapCustomer(rows[0]) : null
 }
 
-export const createCustomer = async (data) => {
+const createCustomer = async (data) => {
   const id = data.id || generateId('cust')
   await query(
     `INSERT INTO customers (id, name, phone, email, address, city, state, aadhaar, pan,
@@ -73,7 +72,7 @@ export const createCustomer = async (data) => {
   return getCustomerById(id)
 }
 
-export const updateCustomer = async (id, data) => {
+const updateCustomer = async (id, data) => {
   await query(
     `UPDATE customers SET name=?, phone=?, email=?, address=?, city=?, state=?, aadhaar=?, pan=?,
       photo_url=?, aadhaar_doc_url=?, aadhaar_front_url=?, aadhaar_back_url=?, pan_doc_url=?,
@@ -91,7 +90,7 @@ export const updateCustomer = async (id, data) => {
   return getCustomerById(id)
 }
 
-export const checkoutCustomer = async (customerId) => {
+const checkoutCustomer = async (customerId) => {
   const conn = await getConnection()
   try {
     await conn.beginTransaction()
@@ -151,9 +150,17 @@ export const checkoutCustomer = async (customerId) => {
   }
 }
 
-export const deleteCustomer = async (id) => {
+const deleteCustomer = async (id) => {
   const [result] = await query('DELETE FROM customers WHERE id = ?', [id])
   return result.affectedRows > 0
 }
 
-export { mapCustomer }
+module.exports = {
+  listCustomers,
+  getCustomerById,
+  createCustomer,
+  updateCustomer,
+  checkoutCustomer,
+  deleteCustomer,
+  mapCustomer,
+}

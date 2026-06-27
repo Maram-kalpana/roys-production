@@ -1,8 +1,7 @@
-import app from './src/app.js'
-import { env } from './src/config/env.js'
-import { initializeDatabase } from './src/config/initDb.js'
-import logger from './src/config/logger.js'
-
+const app = require('./src/app')
+const { env } = require('./src/config/env')
+const { initializeDatabase } = require('./src/config/initDb')
+const logger = require('./src/config/logger')
 const start = async () => {
   try {
     const tables = await initializeDatabase()

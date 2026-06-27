@@ -1,6 +1,5 @@
-import { query } from '../config/db.js'
-
-export const getSettings = async () => {
+const { query } = require('../config/db')
+const getSettings = async () => {
   const [rows] = await query('SELECT * FROM settings WHERE id = 1')
   const s = rows[0] || {}
   return {
@@ -12,10 +11,15 @@ export const getSettings = async () => {
   }
 }
 
-export const updateSettings = async (data) => {
+const updateSettings = async (data) => {
   await query(
     'UPDATE settings SET hotel_name=?, address=?, phone=?, email=?, gst_number=? WHERE id=1',
     [data.hotelName, data.address, data.phone, data.email, data.gstNumber],
   )
   return getSettings()
+}
+
+module.exports = {
+  getSettings,
+  updateSettings,
 }
