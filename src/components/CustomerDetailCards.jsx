@@ -33,7 +33,13 @@ const hasPaymentData = (record) => {
 const CustomerDetailCards = ({ customer, booking, bed, monthlyTenant }) => {
   const stayType = mapStayTypeLabel(customer.stayType || booking?.stayType)
   const isMonthly = stayType === 'Monthly'
-  const photo = getImageSrc(customer.photo || booking?.photo)
+  // const photo = getImageSrc(customer.photo || booking?.photo)
+  const photo = getImageSrc(
+  customer.photo ||
+  customer.photo_url ||
+  booking?.photo ||
+  booking?.photo_url
+)
 
   const paymentHistory = (monthlyTenant?.paymentHistory || []).filter(hasPaymentData)
 
@@ -103,12 +109,42 @@ const CustomerDetailCards = ({ customer, booking, bed, monthlyTenant }) => {
       )}
 
       <DocumentSection customer={{
+  ...customer,
+  photo:
+    customer.photo ||
+    customer.photo_url ||
+    booking?.photo ||
+    booking?.photo_url,
+
+  aadhaarDoc:
+    customer.aadhaarDoc ||
+    customer.aadhaar_doc_url ||
+    booking?.aadhaarDoc ||
+    booking?.aadhaar_doc_url,
+
+  aadhaarFront:
+    customer.aadhaarFront ||
+    customer.aadhaar_front_url ||
+    customer.aadhaarDoc ||
+    customer.aadhaar_doc_url ||
+    booking?.aadhaarFront ||
+    booking?.aadhaar_front_url ||
+    booking?.aadhaarDoc ||
+    booking?.aadhaar_doc_url,
+
+  aadhaarBack:
+    customer.aadhaarBack ||
+    customer.aadhaar_back_url ||
+    booking?.aadhaarBack ||
+    booking?.aadhaar_back_url,
+}} />
+      {/* <DocumentSection customer={{
         ...customer,
         photo: customer.photo || booking?.photo,
         aadhaarDoc: customer.aadhaarDoc || booking?.aadhaarDoc,
         aadhaarFront: customer.aadhaarFront || customer.aadhaar_front_url || booking?.aadhaarFront || booking?.aadhaarDoc,
         aadhaarBack: customer.aadhaarBack || customer.aadhaar_back_url || booking?.aadhaarBack,
-      }} />
+      }} /> */}
 
       {customer.notes && (
         <DetailCard title="Notes" icon={User}>

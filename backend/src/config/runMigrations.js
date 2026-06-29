@@ -31,6 +31,21 @@ const EXPENSE_COLUMNS = [
   ['receipt_url', 'TEXT NULL'],
 ]
 
+const ensureCustomerSoftDeleteStatus = async (conn, dbName, logger) => {
+  const [rows] = await conn.query(
+    `SELECT COLUMN_TYPE AS col FROM information_schema.columns
+     WHERE table_schema = ? AND table_name = 'customers' AND column_name = 'status'`,
+    [dbName],
+  )
+  const colType = rows[0]?.col || ''
+  if (!colType.includes("'deleted'")) {
+    logger.info?.('Adding deleted value to customers.status enum')
+    await conn.query(
+      `ALTER TABLE customers MODIFY COLUMN status ENUM('checked-in', 'checked-out', 'deleted') DEFAULT 'checked-in'`,
+    )
+  }
+}
+
 const runMigrations = async (conn, dbName, logger = console) => {
   for (const [column, definition] of CUSTOMER_COLUMNS) {
     const exists = await columnExists(conn, dbName, 'customers', column)
@@ -57,6 +72,8 @@ const runMigrations = async (conn, dbName, logger = console) => {
       await conn.query(`ALTER TABLE expenses ADD COLUMN ${column} ${definition}`)
     }
   }
+
+  await ensureCustomerSoftDeleteStatus(conn, dbName, logger)
 }
 
 module.exports = {
@@ -67,5 +84,6 @@ module.exports = {
   columnExists,
   tableExists,
   EXPENSE_COLUMNS,
+  ensureCustomerSoftDeleteStatus,
   runMigrations,
 }

@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS customers (
   photo_url TEXT,
   aadhaar_doc_url TEXT,
   pan_doc_url TEXT,
-  status ENUM('checked-in', 'checked-out') DEFAULT 'checked-in',
+  status ENUM('checked-in', 'checked-out', 'deleted') DEFAULT 'checked-in',
   room_id VARCHAR(36) NULL,
   bed_id VARCHAR(36) NULL,
   room_number VARCHAR(20) NULL,

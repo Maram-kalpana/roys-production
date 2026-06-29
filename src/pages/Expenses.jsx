@@ -10,7 +10,7 @@ import DrawerFormStack from '../components/DrawerFormStack'
 import { useExpenses, useAppDispatch } from '../hooks/useStore'
 import { loadExpenses } from '../services/dataService'
 import { expensesApi } from '../services/endpoints'
-import { formatCurrency, formatDate } from '../utils/helpers'
+import { formatCurrency, formatDate, getImageSrc } from '../utils/helpers'
 import { fileStateFromUrl, resolveImageForSubmit } from '../utils/fileHelpers'
 import PageToolbar from '../components/PageToolbar'
 import { filterFieldSx, fieldSx, primaryButtonSx, expenseFilterFieldSx, toolbarButtonSx } from '../utils/layout'
@@ -57,24 +57,31 @@ const Expenses = () => {
   const updateForm = (patch) => setForm((prev) => ({ ...prev, ...patch }))
 
   const filteredExpenses = useMemo(() => {
-    let result = Array.isArray(expensesList) ? expensesList : []
-
+    // Make a copy so Redux state isn't mutated
+    let result = Array.isArray(expensesList) ? [...expensesList] : []
+  
     if (searchDescription) {
-      result = result.filter((e) =>
-        e.description?.toLowerCase().includes(searchDescription.toLowerCase()) ||
-        e.type?.toLowerCase().includes(searchDescription.toLowerCase()),
+      const search = searchDescription.toLowerCase()
+  
+      result = result.filter(
+        (e) =>
+          e.description?.toLowerCase().includes(search) ||
+          e.type?.toLowerCase().includes(search)
       )
     }
-
+  
     if (filterDate) {
       result = result.filter((e) => e.date === filterDate)
     }
-
-    return result.sort((a, b) => {
-      const ta = a.date ? new Date(a.date).getTime() : 0
-      const tb = b.date ? new Date(b.date).getTime() : 0
-      return (Number.isNaN(tb) ? 0 : tb) - (Number.isNaN(ta) ? 0 : ta)
+  
+    result.sort((a, b) => {
+      const ta = a?.date ? new Date(a.date).getTime() : 0
+      const tb = b?.date ? new Date(b.date).getTime() : 0
+  
+      return tb - ta
     })
+  
+    return result
   }, [expensesList, filterDate, searchDescription])
 
   const tableRows = useMemo(
@@ -349,14 +356,61 @@ const Expenses = () => {
         footer={<Button onClick={() => setViewExpense(null)} sx={{ height: 44 }}>Close</Button>}
       >
         {viewExpense && (
-          <DrawerFormStack>
-            <Box sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 1, bgcolor: '#fafbfc' }}>
-              <Typography variant="body2" sx={{ mb: 1 }}><strong>Type:</strong> {TYPE_LABELS[viewExpense.type] || viewExpense.type}</Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}><strong>Date:</strong> {formatDate(viewExpense.date)}</Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}><strong>Amount:</strong> {formatCurrency(viewExpense.amount)}</Typography>
-              <Typography variant="body2"><strong>Description:</strong> {viewExpense.description || '—'}</Typography>
-            </Box>
-          </DrawerFormStack>
+  <DrawerFormStack>
+    <Box
+      sx={{
+        p: 2,
+        border: '1px solid #e2e8f0',
+        borderRadius: 1,
+        bgcolor: '#fafbfc',
+      }}
+    >
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        <strong>Type:</strong> {TYPE_LABELS[viewExpense.type] || viewExpense.type}
+      </Typography>
+
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        <strong>Date:</strong> {formatDate(viewExpense.date)}
+      </Typography>
+
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        <strong>Amount:</strong> {formatCurrency(viewExpense.amount)}
+      </Typography>
+
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        <strong>Description:</strong> {viewExpense.description || '—'}
+      </Typography>
+      {getImageSrc(viewExpense.receipt) ? (
+  <Box sx={{ mt: 2 }}>
+    <Typography variant="body2" sx={{ mb: 1 }}>
+      <strong>Receipt:</strong>
+    </Typography>
+    <Box
+      component="img"
+      src={getImageSrc(viewExpense.receipt)}
+      alt="Receipt"
+      sx={{
+        width: '100%',
+        maxHeight: 260,
+        objectFit: 'contain',
+        border: '1px solid #e2e8f0',
+        borderRadius: 1,
+        bgcolor: '#f8fafc',
+      }}
+    />
+  </Box>
+) : (
+  <Typography variant="body2" sx={{ mt: 2 }}>
+    <strong>Receipt:</strong> —
+  </Typography>
+)}
+
+      
+
+      
+        
+    </Box>
+  </DrawerFormStack>
         )}
       </RightDrawer>
 

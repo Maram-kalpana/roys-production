@@ -23,9 +23,8 @@ const checkout = asyncHandler(async (req, res) => {
 })
 
 const remove = asyncHandler(async (req, res) => {
-  const ok = await customerService.deleteCustomer(req.params.id)
-  if (!ok) return res.status(404).json({ success: false, message: 'Customer not found' })
-  success(res, { deleted: true })
+  await customerService.deleteCustomer(req.params.id)
+  success(res, { deleted: true, softDelete: true })
 })
 
 module.exports = {

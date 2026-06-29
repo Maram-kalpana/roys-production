@@ -37,7 +37,9 @@ const Customers = () => {
     loadCustomers(dispatch).catch(console.error)
   }, [dispatch])
 
-  const enrichedCustomers = useMemo(() => list.map((c) => {
+  const enrichedCustomers = useMemo(() => list
+    .filter((c) => c.status !== 'deleted')
+    .map((c) => {
     const bed = beds.find((b) => b.id === c.bedId)
     const booking = bookings.find((b) => b.customerId === c.id)
     const monthlyTenant = tenants.find((t) => t.customerId === c.id)
@@ -85,7 +87,7 @@ const Customers = () => {
     try {
       await customersApi.remove(customer.id)
       await loadCustomers(dispatch)
-      toast.success('Customer deleted')
+      toast.success('Customer removed from list (payment history preserved)')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete customer')
     }

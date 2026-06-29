@@ -78,15 +78,45 @@ export const matchSearch = (query, ...fields) => {
 /** Normalize image src for <img> — relative /uploads/ paths work via Vite proxy. */
 export const getImageSrc = (url) => {
   if (!url || typeof url !== 'string') return null
+
   const trimmed = url.trim()
-  if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return null
+
+  if (!trimmed || trimmed === 'null' || trimmed === 'undefined') {
+    return null
+  }
+
   if (trimmed.startsWith('blob:')) return null
+
   if (trimmed.startsWith('data:image/')) return trimmed
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
-  if (trimmed.startsWith('uploads/')) return `/${trimmed}`
-  if (trimmed.startsWith('/uploads/')) return trimmed
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL || ''
+  const backendUrl = apiUrl.replace(/\/api\/?$/, '')
+
+  if (trimmed.startsWith('/uploads/')) {
+    return `${backendUrl}${trimmed}`
+  }
+
+  if (trimmed.startsWith('uploads/')) {
+    return `${backendUrl}/${trimmed}`
+  }
+
   return null
 }
+// export const getImageSrc = (url) => {
+//   if (!url || typeof url !== 'string') return null
+//   const trimmed = url.trim()
+//   if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return null
+//   if (trimmed.startsWith('blob:')) return null
+//   if (trimmed.startsWith('data:image/')) return trimmed
+//   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
+//   if (trimmed.startsWith('uploads/')) return `/${trimmed}`
+//   if (trimmed.startsWith('/uploads/')) return trimmed
+//   return null
+// }
 
 /** True for http(s), /uploads/, data:image/, and blob: preview URLs. */
 export const isValidImageUrl = (url) =>

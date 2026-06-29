@@ -76,7 +76,8 @@ export const uploadImageFile = async (file, field = 'photo') => {
  * Resolve the URL to persist: upload new file (or base64 fallback), keep existing, or null if removed.
  */
 export const resolveImageForSubmit = async (fileState, _existingUrl, field) => {
-  if (fileState === null) return null
+  // if (fileState === null) return null
+  if (!fileState) return null
 
   let file = fileState?.file || null
   if (!file && fileState?.preview?.startsWith('data:image/')) {

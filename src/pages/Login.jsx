@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { TextField, Button, Box } from '@mui/material'
-import { Shield, UserCog, User, Lock, Sparkles } from 'lucide-react'
+import {
+  Shield,
+  UserCog,
+  User,
+  Lock,
+  Sparkles,
+  Eye,
+  EyeOff,
+} from 'lucide-react'
 import { useAppDispatch } from '../hooks/useStore'
 import { login } from '../redux/slices/authSlice'
 import { authApi } from '../services/endpoints'
@@ -15,6 +23,7 @@ import logo from '../assets/logo.png'
 const Login = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState(ROLES.ADMIN)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -62,7 +71,7 @@ const Login = () => {
           />
           <div className="max-w-lg">
             <h1 className="text-[2.75rem] font-bold font-[Poppins] leading-[1.15] text-white mb-5">
-              Grand Luxe Hotel Management
+              Grand Luxury Hotel Management
             </h1>
             <p className="text-blue-100/90 text-lg leading-relaxed mb-8">
               Streamline bookings, manage rooms, track payments, and run daily operations from one professional ERP dashboard.
@@ -128,19 +137,34 @@ const Login = () => {
                 </Box>
 
                 <Box>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Password</label>
-                  <Box sx={{ position: 'relative' }}>
-                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      autoComplete="current-password"
-                      placeholder="Enter your password"
-                      className="w-full h-12 pl-10 pr-4 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1F4D] focus:ring-2 focus:ring-[#0B1F4D]/10 transition-all bg-white"
-                    />
-                  </Box>
-                </Box>
+  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">
+    Password
+  </label>
+
+  <Box sx={{ position: 'relative' }}>
+    <Lock
+      size={18}
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none"
+    />
+
+    <input
+      type={showPassword ? 'text' : 'password'}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      autoComplete="current-password"
+      placeholder="Enter your password"
+      className="w-full h-12 pl-10 pr-10 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1F4D] focus:ring-2 focus:ring-[#0B1F4D]/10 transition-all bg-white"
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0B1F4D] transition-colors"
+    >
+      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+    </button>
+  </Box>
+</Box>
 
                 <Button
                   type="submit"

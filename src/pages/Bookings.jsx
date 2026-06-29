@@ -76,7 +76,8 @@ const BookingsContent = () => {
   const tableRows = useMemo(() => {
     let rows = bookings
       .filter((b) => !['Months', 'Monthly'].includes(b.stayType))
-      .filter((b) => isSuperAdmin ? ['active', 'reserved', 'booked'].includes(b.status) : true)
+      .filter((b) => ['active', 'reserved', 'booked'].includes(b.status))
+      // .filter((b) => isSuperAdmin ? ['active', 'reserved', 'booked'].includes(b.status) : true)
       .map((b) => {
         const customer = customers.find((c) => String(c.id) === String(b.customerId))
         const status = b.paymentStatus || getPaymentStatus(b.balanceAmount)
@@ -93,6 +94,10 @@ const BookingsContent = () => {
           id: b.id,
           customerName: b.customerName,
           phone: customer?.phone || b.phone || '—',
+          photo: customer?.photo || customer?.photo_url || b.photo || b.photo_url,
+aadhaarDoc: customer?.aadhaarDoc || customer?.aadhaar_doc_url || b.aadhaarDoc || b.aadhaar_doc_url,
+aadhaarFront: customer?.aadhaarFront || customer?.aadhaar_front_url || b.aadhaarFront || b.aadhaar_front_url || b.aadhaarDoc,
+aadhaarBack: customer?.aadhaarBack || customer?.aadhaar_back_url || b.aadhaarBack || b.aadhaar_back_url,
           floorNumber: b.floorNumber,
           roomNumber: b.roomNumber,
           bedNumber: b.bedNumber,
@@ -116,8 +121,22 @@ const BookingsContent = () => {
           balancePaymentType: balancePayment?.type || b.paymentType || 'Cash',
           balancePaymentDate: balancePayment?.date?.split('T')[0] || (balanceStatus === 'completed' ? bookingDate : ''),
           balancePaymentStatus: balanceStatus,
-          booking: b,
-          customer,
+          // booking: b,
+          // customer,
+          booking: {
+  ...b,
+  photo: customer?.photo || customer?.photo_url || b.photo || b.photo_url,
+  aadhaarDoc: customer?.aadhaarDoc || customer?.aadhaar_doc_url || b.aadhaarDoc || b.aadhaar_doc_url,
+  aadhaarFront: customer?.aadhaarFront || customer?.aadhaar_front_url || b.aadhaarFront || b.aadhaar_front_url || b.aadhaarDoc,
+  aadhaarBack: customer?.aadhaarBack || customer?.aadhaar_back_url || b.aadhaarBack || b.aadhaar_back_url,
+},
+customer: customer ? {
+  ...customer,
+  photo: customer.photo || customer.photo_url || b.photo || b.photo_url,
+  aadhaarDoc: customer.aadhaarDoc || customer.aadhaar_doc_url || b.aadhaarDoc || b.aadhaar_doc_url,
+  aadhaarFront: customer.aadhaarFront || customer.aadhaar_front_url || b.aadhaarFront || b.aadhaar_front_url || b.aadhaarDoc,
+  aadhaarBack: customer.aadhaarBack || customer.aadhaar_back_url || b.aadhaarBack || b.aadhaar_back_url,
+} : null,
         }
       })
 

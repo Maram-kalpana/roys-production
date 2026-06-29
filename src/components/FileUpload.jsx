@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { Box, Typography, Button, IconButton, Dialog } from '@mui/material'
+// import { Box, Typography, Button, IconButton, Dialog } from '@mui/material'
+import { Box, Typography, Button, IconButton } from '@mui/material'
 import { Camera, Upload, X, FileText } from 'lucide-react'
 
 const ACCEPTED = '.jpg,.jpeg,.png,.pdf'
@@ -165,15 +166,37 @@ const FileUpload = ({
         return
       }
 
-      const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' })
+      const file = new File([blob], `${label || 'photo'}-${Date.now()}.jpg`, {
+  type: 'image/jpeg',
+})
+
+const previewUrl = URL.createObjectURL(file)
+
+onChange({
+  file,
+  name: file.name,
+  type: file.type || 'image/jpeg',
+  preview: previewUrl,
+})
+
+if (document.activeElement instanceof HTMLElement) {
+  document.activeElement.blur()
+}
+
+setTimeout(() => {
+  stopStream()
+  setCameraOpen(false)
+  setCameraError('')
+}, 100)
+      // const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' })
       
       // Route the captured file exactly through the same function that "Choose File" uses
-      handleFile(file)
+      // handleFile(file)
       
       // Close the dialog
-      stopStream()
-      setCameraOpen(false)
-      setCameraError('')
+      // stopStream()
+      // setCameraOpen(false)
+      // setCameraError('')
     }, 'image/jpeg', 0.92)
   }
 
@@ -238,18 +261,84 @@ const FileUpload = ({
         </Box>
       )}
 
-      <Dialog
-        open={cameraOpen}
-        onClose={closeCamera}
-        maxWidth="sm"
-        fullWidth
+{cameraOpen && (
+  <Box
+    sx={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      bgcolor: 'rgba(0,0,0,0.55)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      p: 2,
+    }}
+  >
+    <Box sx={{ bgcolor: '#fff', borderRadius: 2, p: 2, width: '100%', maxWidth: 620 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        {label}
+      </Typography>
+
+      <Box
+        component="video"
+        ref={(el) => {
+          videoRef.current = el
+          if (el && streamRef.current && !streamAttachedRef.current) {
+            attachStreamToVideo()
+          }
+        }}
+        autoPlay
+        playsInline
+        muted
+        sx={{
+          width: '100%',
+          borderRadius: 1,
+          bgcolor: '#000',
+          maxHeight: 360,
+          minHeight: 200,
+          display: 'block',
+        }}
+      />
+
+      {cameraError && (
+        <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+          {cameraError}
+        </Typography>
+      )}
+
+      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+        <Button type="button" onClick={closeCamera}>Cancel</Button>
+        <Button
+          type="button"
+          variant="contained"
+          onClick={capturePhoto}
+          sx={{ bgcolor: '#0B1F4D', '&:hover': { bgcolor: '#0a1a3d' } }}
+        >
+          Capture
+        </Button>
+      </Box>
+    </Box>
+  </Box>
+)}
+      {/* <Dialog
+      open={cameraOpen}
+  onClose={closeCamera}
+  maxWidth="sm"
+  fullWidth
+  disableRestoreFocus
+  disableAutoFocus
+  disableEnforceFocus
+        // open={cameraOpen}
+        // onClose={closeCamera}
+        // maxWidth="sm"
+        // fullWidth
         sx={{ zIndex: CAMERA_DIALOG_Z }}
         slotProps={{
           root: { sx: { zIndex: CAMERA_DIALOG_Z } },
           backdrop: { sx: { zIndex: CAMERA_DIALOG_Z - 1 } },
           transition: { onEntered: attachStreamToVideo },
         }}
-        disableEnforceFocus
+        // disableEnforceFocus
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>{label}</Typography>
@@ -280,7 +369,7 @@ const FileUpload = ({
             </Button>
           </Box>
         </Box>
-      </Dialog>
+      </Dialog> */}
     </Box>
   )
 }

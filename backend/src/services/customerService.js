@@ -32,9 +32,12 @@ const mapCustomer = (row) => ({
   joiningDate: row.joining_date,
 })
 
-const listCustomers = async ({ status, search, checkInDate } = {}) => {
+const listCustomers = async ({ status, search, checkInDate, includeDeleted = false } = {}) => {
   let sql = 'SELECT * FROM customers WHERE 1=1'
   const params = []
+  if (!includeDeleted && !status) {
+    sql += " AND status != 'deleted'"
+  }
   if (status) { sql += ' AND status = ?'; params.push(status) }
   if (checkInDate) { sql += ' AND check_in_date = ?'; params.push(checkInDate) }
   if (search) {
@@ -100,6 +103,9 @@ const checkoutCustomer = async (customerId) => {
     if (customer.status === 'checked-out') {
       throw Object.assign(new Error('Customer is already checked out'), { status: 400 })
     }
+    if (customer.status === 'deleted') {
+      throw Object.assign(new Error('Customer record has been removed'), { status: 400 })
+    }
 
     const [bookings] = await conn.execute(
       'SELECT * FROM bookings WHERE customer_id = ? AND status IN ("active","booked","reserved") ORDER BY created_at DESC LIMIT 1',
@@ -151,8 +157,42 @@ const checkoutCustomer = async (customerId) => {
 }
 
 const deleteCustomer = async (id) => {
-  const [result] = await query('DELETE FROM customers WHERE id = ?', [id])
-  return result.affectedRows > 0
+  const conn = await getConnection()
+  try {
+    await conn.beginTransaction()
+
+    const [customers] = await conn.execute('SELECT * FROM customers WHERE id = ? FOR UPDATE', [id])
+    const customer = customers[0]
+    if (!customer) {
+      throw Object.assign(new Error('Customer not found'), { status: 404 })
+    }
+
+    if (customer.status === 'deleted') {
+      await conn.commit()
+      return true
+    }
+
+    if (customer.bed_id) {
+      await conn.execute('UPDATE beds SET status="vacant", customer_id=NULL WHERE id=?', [customer.bed_id])
+    }
+
+    // Soft delete — never DELETE FROM customers (FK CASCADE would remove bookings & payments).
+    await conn.execute(
+      `UPDATE customers SET
+        status='deleted',
+        room_id=NULL, bed_id=NULL, room_number=NULL, bed_number=NULL, floor_number=NULL
+       WHERE id=?`,
+      [id],
+    )
+
+    await conn.commit()
+    return true
+  } catch (err) {
+    await conn.rollback()
+    throw err
+  } finally {
+    conn.release()
+  }
 }
 
 module.exports = {

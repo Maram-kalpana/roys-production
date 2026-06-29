@@ -77,6 +77,10 @@ export const buildTenantFormDefaults = (tenant, customer, booking, beds = [], fl
 
 const TenantForm = ({ floors, rooms, beds, onSubmit, onCancel, tenant, customer, booking, editMode = false, loading = false }) => {
   const [photoFile, setPhotoFile] = useState(null)
+  useEffect(() => {
+    console.log("Tenant photoFile");
+    console.log(photoFile);
+}, [photoFile]);
   const [aadhaarFile, setAadhaarFile] = useState(null)
   const [aadhaarBackFile, setAadhaarBackFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)

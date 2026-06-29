@@ -14,7 +14,12 @@ import PaymentStatusSelect from './PaymentStatusSelect'
 const paymentTypes = ['Cash', 'UPI', 'Card', 'Bank Transfer']
 
 const BookingForm = ({ floors, rooms, beds, onSubmit, onCancel, loading = false }) => {
-  const [photoFile, setPhotoFile] = useState(null)
+  const [photoFile, setPhotoFile] = useState(null);
+
+useEffect(() => {
+    console.log("photoFile changed");
+    console.log(photoFile);
+}, [photoFile]);
   const [aadhaarFile, setAadhaarFile] = useState(null)
   const [aadhaarBackFile, setAadhaarBackFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
