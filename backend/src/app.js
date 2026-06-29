@@ -25,7 +25,7 @@ app.use(rateLimit({
   legacyHeaders: false,
 }))
 
-app.use(express.json({ limit: '2mb' }))
+app.use(express.json({ limit: '15mb' }))
 app.use(express.urlencoded({ extended: true }))
 
 app.use((req, _res, next) => {
@@ -33,7 +33,7 @@ app.use((req, _res, next) => {
   next()
 })
 
-app.use('/uploads', express.static(path.join(__dirname, '../', env.uploadDir)))
+app.use('/uploads', express.static(env.uploadRoot))
 app.use('/api', routes)
 
 app.use(notFound)

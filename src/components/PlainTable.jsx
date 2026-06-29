@@ -46,6 +46,7 @@ const PlainTable = ({
   onRowClick,
   hidePagination = false,
   mobileGrid = true,
+  filterKey = '',
 }) => {
   const isCompact = useMediaQuery(COMPACT_BREAKPOINT)
   const isMobile = useMediaQuery('(max-width:767px)')
@@ -58,7 +59,7 @@ const PlainTable = ({
 
   useEffect(() => {
     setPage(0)
-  }, [rows.length, activeColumns.length])
+  }, [rows.length, activeColumns.length, filterKey])
 
   const totalRows = rows.length
   const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage))

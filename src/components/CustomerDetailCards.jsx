@@ -1,7 +1,7 @@
 import { Avatar } from '@mui/material'
 import { User, CreditCard, Building2, Clock, CalendarClock } from 'lucide-react'
 import {
-  formatCurrency, displayValue, mapStayTypeLabel, isValidImageUrl,
+  formatCurrency, displayValue, mapStayTypeLabel, getImageSrc,
   formatCheckInDateTime, formatCheckOutDateTime,
 } from '../utils/helpers'
 import { getDueDateLabel } from '../utils/monthlyPaymentHelpers'
@@ -33,7 +33,7 @@ const hasPaymentData = (record) => {
 const CustomerDetailCards = ({ customer, booking, bed, monthlyTenant }) => {
   const stayType = mapStayTypeLabel(customer.stayType || booking?.stayType)
   const isMonthly = stayType === 'Monthly'
-  const photo = isValidImageUrl(customer.photo) ? customer.photo : null
+  const photo = getImageSrc(customer.photo || booking?.photo)
 
   const paymentHistory = (monthlyTenant?.paymentHistory || []).filter(hasPaymentData)
 
@@ -104,8 +104,10 @@ const CustomerDetailCards = ({ customer, booking, bed, monthlyTenant }) => {
 
       <DocumentSection customer={{
         ...customer,
-        aadhaarFront: customer.aadhaarFront || customer.aadhaar_front_url,
-        aadhaarBack: customer.aadhaarBack || customer.aadhaar_back_url,
+        photo: customer.photo || booking?.photo,
+        aadhaarDoc: customer.aadhaarDoc || booking?.aadhaarDoc,
+        aadhaarFront: customer.aadhaarFront || customer.aadhaar_front_url || booking?.aadhaarFront || booking?.aadhaarDoc,
+        aadhaarBack: customer.aadhaarBack || customer.aadhaar_back_url || booking?.aadhaarBack,
       }} />
 
       {customer.notes && (

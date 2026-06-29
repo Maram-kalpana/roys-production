@@ -22,18 +22,27 @@ const hashPassword = async (password) => bcrypt.hash(password, 12)
 
 const comparePassword = async (password, hash) => bcrypt.compare(password, hash)
 
-const mapExpenseToFrontend = (row) => ({
-  id: row.id,
-  type: row.category,
-  date: row.expense_date instanceof Date
-    ? row.expense_date.toISOString().split('T')[0]
-    : row.expense_date,
-  amount: Number(row.amount),
-  description: row.notes || row.expense_name,
-  receipt: row.receipt_url || null,
-  createdBy: row.created_by,
-  createdAt: row.created_at,
-})
+const mapExpenseToFrontend = (row) => {
+  let date = row.expense_date
+  if (date instanceof Date && !Number.isNaN(date.getTime())) {
+    date = date.toISOString().split('T')[0]
+  } else if (date != null) {
+    date = String(date).split('T')[0]
+  } else {
+    date = null
+  }
+
+  return {
+    id: row.id,
+    type: row.category || row.expense_name || 'miscellaneous',
+    date,
+    amount: Number(row.amount) || 0,
+    description: row.notes || row.expense_name || '',
+    receipt: row.receipt_url || null,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+  }
+}
 
 const mapExpenseFromFrontend = (body) => ({
   expense_name: body.type || body.expenseName || body.description || 'Expense',

@@ -91,9 +91,6 @@ const BookingForm = ({ floors, rooms, beds, onSubmit, onCancel, loading = false 
         resolveImageForSubmit(aadhaarBackFile, null, 'aadhaarBack'),
       ])
 
-      console.log('Submitting Data:', data)
-      console.log('Images:', { photo, aadhaarDoc, aadhaarBack })
-
       const checkInDateTime = combineDateAndTime(data.checkInDate, data.checkInTime)
 
       await onSubmit({
@@ -125,6 +122,7 @@ const BookingForm = ({ floors, rooms, beds, onSubmit, onCancel, loading = false 
       setAadhaarBackFile(null)
     } catch (err) {
       console.error('Booking submit error:', err)
+      throw err
     } finally {
       setSubmitting(false)
     }
@@ -155,7 +153,7 @@ const BookingForm = ({ floors, rooms, beds, onSubmit, onCancel, loading = false 
         <Field control={control} name="aadhaar" label="Aadhaar Number" rules={{ required: 'Aadhaar is required', minLength: { value: 12, message: 'Must be 12 digits' } }} errors={errors} />
         <Field control={control} name="pan" label="PAN Number" rules={{ required: 'PAN is required' }} errors={errors} />
         <Box sx={{ gridColumn: '1 / -1' }}>
-          <FileUpload label="Photo" value={photoFile} onChange={setPhotoFile} accept="image/*" />
+          <FileUpload label="Photo" value={photoFile} onChange={setPhotoFile} accept="image/*" captureMode="user" />
         </Box>
         <Box sx={{ gridColumn: '1 / -1' }}>
           <FileUpload label="Aadhaar Front" value={aadhaarFile} onChange={setAadhaarFile} accept="image/*" />

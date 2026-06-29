@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  DoorOpen, Bed, Users, CalendarCheck, Receipt, AlertCircle,
+  DoorOpen, Bed, Users, CalendarCheck, Receipt,
 } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import PageTransition from '../components/PageTransition'
@@ -35,8 +35,6 @@ const SuperAdminDashboard = () => {
     { title: 'Total Customers', value: stats.totalCustomers, icon: Users, color: 'royal' },
     { title: 'Total Bookings', value: stats.totalBookings, icon: CalendarCheck, color: 'violet' },
     { title: 'Monthly Tenants', value: monthlyStats.monthlyTenants, icon: Receipt, color: 'royal' },
-    { title: 'Payments Due', value: monthlyStats.paymentsDue, icon: AlertCircle, color: 'rose' },
-    { title: 'Pending Payments', value: monthlyStats.pendingPayments, icon: AlertCircle, color: 'gold' },
   ]
 
   return (
@@ -50,7 +48,7 @@ const SuperAdminDashboard = () => {
 
       <div className="dashboard-grid">
         {loading
-          ? Array.from({ length: 9 }).map((_, i) => <StatCardSkeleton key={i} />)
+          ? Array.from({ length: 7 }).map((_, i) => <StatCardSkeleton key={i} />)
           : kpiCards.map((card, i) => (
             <motion.div key={card.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
               <StatCard {...card} />

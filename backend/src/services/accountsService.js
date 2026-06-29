@@ -1,12 +1,19 @@
 const { query } = require('../config/db')
-const normalizeType = (type) => (type || 'Cash').toLowerCase()
+const normalizeType = (type) => {
+  const t = (type || 'Cash').trim().toLowerCase()
+  if (t === 'cash') return 'cash'
+  if (t === 'upi') return 'upi'
+  if (t === 'card') return 'card'
+  if (t.includes('bank')) return 'bank'
+  return 'cash'
+}
 
 const addToBucket = (bucket, type, amount) => {
   const t = normalizeType(type)
   const amt = Number(amount) || 0
-  if (t.includes('cash')) bucket.cash += amt
-  else if (t.includes('upi')) bucket.upi += amt
-  else if (t.includes('card')) bucket.card += amt
+  if (t === 'cash') bucket.cash += amt
+  else if (t === 'upi') bucket.upi += amt
+  else if (t === 'card') bucket.card += amt
   else bucket.bank += amt
   bucket.total += amt
 }
@@ -47,43 +54,56 @@ const getAccountsSummary = async ({ view = 'day', date } = {}) => {
   const bookingRevenueSql = date
     ? (view === 'month'
       ? `SELECT DATE_FORMAT(payment_date, '%Y-%m') AS period, payment_type AS type, SUM(amount) AS total
-         FROM booking_payments WHERE DATE_FORMAT(payment_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+         FROM booking_payments
+         WHERE status = 'completed' AND DATE_FORMAT(payment_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
          GROUP BY period, payment_type`
       : `SELECT DATE(payment_date) AS period, payment_type AS type, SUM(amount) AS total
-         FROM booking_payments WHERE DATE(payment_date) = ?
+         FROM booking_payments
+         WHERE status = 'completed' AND DATE(payment_date) = ?
          GROUP BY period, payment_type`)
     : `SELECT ${periodExpr} AS period, payment_type AS type, SUM(amount) AS total
-       FROM booking_payments WHERE payment_date IS NOT NULL
+       FROM booking_payments
+       WHERE status = 'completed' AND payment_date IS NOT NULL
        GROUP BY period, payment_type`
+
+  const monthlyPeriodExpr = view === 'month'
+    ? "DATE_FORMAT(s.payment_date, '%Y-%m')"
+    : 'DATE(s.payment_date)'
 
   const monthlyRevenueSql = date
     ? (view === 'month'
-      ? `SELECT DATE_FORMAT(payment_date, '%Y-%m') AS period, COALESCE(payment_mode, 'Cash') AS type, SUM(amount_paid) AS total
-         FROM monthly_payments WHERE status = 'paid' AND DATE_FORMAT(payment_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+      ? `SELECT DATE_FORMAT(s.payment_date, '%Y-%m') AS period, s.payment_mode AS type, SUM(s.amount) AS total
+         FROM monthly_payment_splits s
+         WHERE s.payment_date IS NOT NULL
+           AND DATE_FORMAT(s.payment_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
          GROUP BY period, type`
-      : `SELECT DATE(payment_date) AS period, COALESCE(payment_mode, 'Cash') AS type, SUM(amount_paid) AS total
-         FROM monthly_payments WHERE status = 'paid' AND DATE(payment_date) = ?
+      : `SELECT DATE(s.payment_date) AS period, s.payment_mode AS type, SUM(s.amount) AS total
+         FROM monthly_payment_splits s
+         WHERE s.payment_date IS NOT NULL AND DATE(s.payment_date) = ?
          GROUP BY period, type`)
-    : `SELECT ${view === 'month' ? "DATE_FORMAT(payment_date, '%Y-%m')" : 'DATE(payment_date)'} AS period,
-              COALESCE(payment_mode, 'Cash') AS type, SUM(amount_paid) AS total
-       FROM monthly_payments WHERE status = 'paid' AND payment_date IS NOT NULL
+    : `SELECT ${monthlyPeriodExpr} AS period, s.payment_mode AS type, SUM(s.amount) AS total
+       FROM monthly_payment_splits s
+       WHERE s.payment_date IS NOT NULL
        GROUP BY period, type`
 
   const extendedRevenueSql = date
     ? (view === 'month'
       ? `SELECT DATE_FORMAT(extended_payment_date, '%Y-%m') AS period,
                 COALESCE(extended_payment_type, 'Cash') AS type, SUM(extended_amount) AS total
-         FROM bookings WHERE extended_amount > 0 AND extended_payment_date IS NOT NULL
+         FROM bookings
+         WHERE extended_amount > 0 AND extended_status = 'completed' AND extended_payment_date IS NOT NULL
            AND DATE_FORMAT(extended_payment_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
          GROUP BY period, type`
       : `SELECT DATE(extended_payment_date) AS period,
                 COALESCE(extended_payment_type, 'Cash') AS type, SUM(extended_amount) AS total
-         FROM bookings WHERE extended_amount > 0 AND extended_payment_date IS NOT NULL
+         FROM bookings
+         WHERE extended_amount > 0 AND extended_status = 'completed' AND extended_payment_date IS NOT NULL
            AND DATE(extended_payment_date) = ?
          GROUP BY period, type`)
     : `SELECT ${view === 'month' ? "DATE_FORMAT(extended_payment_date, '%Y-%m')" : 'DATE(extended_payment_date)'} AS period,
               COALESCE(extended_payment_type, 'Cash') AS type, SUM(extended_amount) AS total
-       FROM bookings WHERE extended_amount > 0 AND extended_payment_date IS NOT NULL
+       FROM bookings
+       WHERE extended_amount > 0 AND extended_status = 'completed' AND extended_payment_date IS NOT NULL
        GROUP BY period, type`
 
   const params = date ? [date] : []

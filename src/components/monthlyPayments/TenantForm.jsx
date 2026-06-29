@@ -90,11 +90,15 @@ const TenantForm = ({ floors, rooms, beds, onSubmit, onCancel, tenant, customer,
 
   useEffect(() => {
     reset(defaults)
+  }, [defaults, reset])
+
+  useEffect(() => {
+    if (!tenant?.id && !customer?.id) return
     const src = customer || tenant
     setPhotoFile(fileStateFromUrl(src?.photo, 'photo.jpg'))
     setAadhaarFile(fileStateFromUrl(src?.aadhaarFront || src?.aadhaarDoc, 'aadhaar-front.jpg'))
     setAadhaarBackFile(fileStateFromUrl(src?.aadhaarBack, 'aadhaar-back.jpg'))
-  }, [defaults, reset, tenant?.id, customer?.id])
+  }, [tenant?.id, customer?.id, customer, tenant])
 
   const selectedFloor = watch('floorId')
   const selectedRoom = watch('roomId')
@@ -196,9 +200,6 @@ const TenantForm = ({ floors, rooms, beds, onSubmit, onCancel, tenant, customer,
         resolveImageForSubmit(aadhaarBackFile, src?.aadhaarBack, 'aadhaarBack'),
       ])
 
-      console.log('Submitting Data:', data)
-      console.log('Images:', { photo, aadhaarFront, aadhaarBack })
-
       await onSubmit({
         ...data,
         stayType: 'Months',
@@ -256,7 +257,7 @@ const TenantForm = ({ floors, rooms, beds, onSubmit, onCancel, tenant, customer,
         <Field control={control} name="aadhaar" label="Aadhaar Number" rules={{ required: 'Aadhaar is required', minLength: { value: 12, message: 'Must be 12 digits' } }} errors={errors} />
         <Field control={control} name="pan" label="PAN Number" rules={{ required: 'PAN is required' }} errors={errors} />
         <Box sx={{ gridColumn: '1 / -1' }}>
-          <FileUpload label="Photo" value={photoFile} onChange={setPhotoFile} accept="image/*" />
+          <FileUpload label="Photo" value={photoFile} onChange={setPhotoFile} accept="image/*" captureMode="user" />
         </Box>
         <Box sx={{ gridColumn: '1 / -1' }}>
           <FileUpload label="Aadhaar Front" value={aadhaarFile} onChange={setAadhaarFile} accept="image/*" />

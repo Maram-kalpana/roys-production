@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { LogIn, LogOut, Bed, Users, CreditCard, Receipt, AlertCircle } from 'lucide-react'
+import { LogIn, LogOut, Bed, Users, Receipt } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import PageTransition from '../components/PageTransition'
 import { StatCardSkeleton } from '../components/LoadingSkeleton'
 import { useHotel, useBookings, useMonthlyPayments } from '../hooks/useStore'
-import { formatCurrency, computeHotelStats } from '../utils/helpers'
+import { computeHotelStats } from '../utils/helpers'
 import { computeMonthlyPaymentStats } from '../utils/monthlyPaymentHelpers'
 import { motion } from 'framer-motion'
 
@@ -28,10 +28,7 @@ const AdminDashboard = () => {
     { title: 'Total Beds', value: stats.totalBeds, icon: Bed, color: 'slate', subtitle: `${stats.occupiedBeds} occ · ${stats.vacantBeds} vac` },
     { title: 'Vacant Beds', value: stats.vacantBeds, icon: Bed, color: 'royal' },
     { title: 'Occupied Beds', value: stats.occupiedBeds, icon: Users, color: 'violet' },
-    { title: 'Pending Payments', value: formatCurrency(stats.pendingPayments), icon: CreditCard, color: 'gold' },
     { title: 'Monthly Tenants', value: monthlyStats.monthlyTenants, icon: Receipt, color: 'royal' },
-    { title: 'Payments Due', value: monthlyStats.paymentsDue, icon: AlertCircle, color: 'rose' },
-    { title: 'Pending Rent', value: monthlyStats.pendingPayments, icon: AlertCircle, color: 'gold' },
   ]
 
   return (
@@ -45,7 +42,7 @@ const AdminDashboard = () => {
 
         <div className="dashboard-grid mb-8">
           {loading
-            ? Array.from({ length: 9 }).map((_, i) => <StatCardSkeleton key={i} />)
+            ? Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)
             : cards.map((card, i) => (
               <motion.div key={card.title} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.06 }}>
                 <StatCard {...card} />

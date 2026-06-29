@@ -1,5 +1,9 @@
 const dotenv = require('dotenv')
+const path = require('path')
+
 dotenv.config()
+
+const uploadRoot = path.resolve(__dirname, '../../uploads')
 
 const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -17,6 +21,7 @@ const env = {
   },
   corsOrigin: process.env.CORS_ORIGIN || '*',
   uploadDir: process.env.UPLOAD_DIR || 'uploads',
+  uploadRoot,
   maxFileSize: Number(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024,
 }
 

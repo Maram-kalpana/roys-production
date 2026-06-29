@@ -1,11 +1,11 @@
 import { Avatar, Chip, Divider } from '@mui/material'
 import { Mail, Phone, MapPin, CreditCard, Calendar } from 'lucide-react'
-import { formatCurrency, formatDate } from '../utils/helpers'
+import { formatCurrency, formatDate, getImageSrc } from '../utils/helpers'
 
 const ProfileCard = ({ customer, booking }) => (
   <div className="rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden">
     <div className="gradient-royal p-6 text-white text-center">
-      <Avatar src={customer.photo} alt={customer.name} sx={{ width: 96, height: 96, mx: 'auto', border: '4px solid rgba(255,255,255,0.3)' }} />
+      <Avatar src={getImageSrc(customer.photo)} alt={customer.name} sx={{ width: 96, height: 96, mx: 'auto', border: '4px solid rgba(255,255,255,0.3)' }} />
       <h2 className="mt-4 text-xl font-semibold font-[Poppins]">{customer.name}</h2>
       <Chip label={customer.status} size="small" sx={{ mt: 1, bgcolor: 'rgba(255,255,255,0.2)', color: 'white', textTransform: 'capitalize' }} />
     </div>

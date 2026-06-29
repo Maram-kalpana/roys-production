@@ -2,6 +2,16 @@ const { query, getConnection } = require('../config/db')
 const { generateId } = require('../utils/helpers')
 const toDateTimeOrNull = (value) => (value && value !== '' ? value : null)
 
+const BOOKING_WITH_CUSTOMER_SELECT = `
+  SELECT b.*,
+    c.photo_url,
+    c.aadhaar_doc_url,
+    c.aadhaar_front_url,
+    c.aadhaar_back_url
+  FROM bookings b
+  LEFT JOIN customers c ON c.id = b.customer_id
+`
+
 const mapBooking = (row, payments = [], shifts = []) => ({
   id: row.id,
   customerId: row.customer_id,
@@ -32,24 +42,28 @@ const mapBooking = (row, payments = [], shifts = []) => ({
   extendedPaymentType: row.extended_payment_type,
   extendedPaymentDate: row.extended_payment_date,
   createdAt: row.created_at,
+  photo: row.photo_url || null,
+  aadhaarDoc: row.aadhaar_doc_url || null,
+  aadhaarFront: row.aadhaar_front_url || null,
+  aadhaarBack: row.aadhaar_back_url || null,
   payments,
   shifts,
 })
 
 const listBookings = async ({ status, search, checkInDate, paymentStatus, role } = {}) => {
-  let sql = 'SELECT * FROM bookings WHERE 1=1'
+  let sql = `${BOOKING_WITH_CUSTOMER_SELECT} WHERE 1=1`
   const params = []
-  if (role === 'super_admin') sql += ' AND status IN ("active","reserved","booked")'
-  sql += ' AND (stay_type IS NULL OR stay_type NOT IN ("Months", "Monthly"))'
-  if (status) { sql += ' AND status = ?'; params.push(status) }
-  if (checkInDate) { sql += ' AND check_in_date = ?'; params.push(checkInDate) }
-  if (paymentStatus) { sql += ' AND payment_status = ?'; params.push(paymentStatus) }
+  if (role === 'super_admin') sql += ' AND b.status IN ("active","reserved","booked")'
+  sql += ' AND (b.stay_type IS NULL OR b.stay_type NOT IN ("Months", "Monthly"))'
+  if (status) { sql += ' AND b.status = ?'; params.push(status) }
+  if (checkInDate) { sql += ' AND b.check_in_date = ?'; params.push(checkInDate) }
+  if (paymentStatus) { sql += ' AND b.payment_status = ?'; params.push(paymentStatus) }
   if (search) {
-    sql += ' AND (customer_name LIKE ? OR phone LIKE ? OR room_number LIKE ?)'
+    sql += ' AND (b.customer_name LIKE ? OR b.phone LIKE ? OR b.room_number LIKE ?)'
     const q = `%${search}%`
     params.push(q, q, q)
   }
-  sql += ' ORDER BY created_at DESC'
+  sql += ' ORDER BY b.created_at DESC'
   const [rows] = await query(sql, params)
   return Promise.all(rows.map(async (row) => {
     const [payments] = await query('SELECT * FROM booking_payments WHERE booking_id = ?', [row.id])
@@ -139,7 +153,7 @@ const createBooking = async (data) => {
     await conn.execute('UPDATE beds SET status="occupied", customer_id=? WHERE id=?', [customerId, bed.id])
     await conn.commit()
 
-    const [rows] = await query('SELECT * FROM bookings WHERE id = ?', [bookingId])
+    const [rows] = await query(`${BOOKING_WITH_CUSTOMER_SELECT} WHERE b.id = ?`, [bookingId])
     return mapBooking(rows[0])
   } catch (err) {
     await conn.rollback()
@@ -289,7 +303,7 @@ const updateBooking = async (id, data) => {
     }
 
     await conn.commit()
-    const [rows] = await query('SELECT * FROM bookings WHERE id = ?', [id])
+    const [rows] = await query(`${BOOKING_WITH_CUSTOMER_SELECT} WHERE b.id = ?`, [id])
     return mapBooking(rows[0])
   } catch (err) {
     await conn.rollback()

@@ -48,7 +48,9 @@ const BookingViewModal = ({ open, onClose, booking, customer }) => {
   // Resolve images — field may live on `customer` or directly on `booking`
   // depending on how your backend stores/returns data.
   const photo      = getImageSrc(customer?.photo      || booking?.photo)
-  const aadhaarDoc = getImageSrc(customer?.aadhaarDoc || customer?.aadhaarFront || booking?.aadhaarDoc)
+  const aadhaarDoc = getImageSrc(
+    customer?.aadhaarDoc || customer?.aadhaarFront || booking?.aadhaarDoc || booking?.aadhaarFront,
+  )
   const aadhaarBack = getImageSrc(customer?.aadhaarBack || booking?.aadhaarBack)
 
   return (

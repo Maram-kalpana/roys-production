@@ -1,20 +1,22 @@
+const path = require('path')
 const { asyncHandler, success } = require('../utils/helpers')
-const { SUBDIRS } = require('../middleware/upload')
+const { env } = require('../config/env')
+const uploadRoot = env.uploadRoot
+
 const uploadFile = asyncHandler(async (req, res) => {
-  console.log('req.files:', req.file ? [req.file] : req.files)
-  console.log('req.body:', req.body)
+  const file = req.file || req.files?.file?.[0]
 
-  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+  if (!file) return res.status(400).json({ success: false, message: 'No file uploaded' })
 
-  const field = req.body.field || 'photo'
-  const subdir = SUBDIRS[field] || 'identity-proofs'
-  const url = `/uploads/${subdir}/${req.file.filename}`
+  const field = req.body?.field || req.query?.field || 'photo'
+  const relative = path.relative(uploadRoot, file.path).split(path.sep).join('/')
+  const url = `/uploads/${relative}`
 
   success(res, {
     url,
     imageUrl: url,
-    filename: req.file.filename,
-    mimeType: req.file.mimetype,
+    filename: file.filename,
+    mimeType: file.mimetype,
     field,
   })
 })

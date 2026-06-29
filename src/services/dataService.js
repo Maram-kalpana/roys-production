@@ -112,8 +112,9 @@ export const loadBookings = async (dispatch) => {
 
 export const loadExpenses = async (dispatch) => {
   const data = await expensesApi.list()
-  dispatch(setExpensesList(data || []))
-  return data
+  const list = Array.isArray(data) ? data : (data?.list ?? data?.data ?? [])
+  dispatch(setExpensesList(list))
+  return list
 }
 
 export const loadMonthlyPayments = async (dispatch) => {

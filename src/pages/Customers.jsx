@@ -12,7 +12,7 @@ import { MergedCell, VerticalActions, CompactIconButton } from '../components/ta
 import { useCustomers, useHotel, useBookings, useMonthlyPayments } from '../hooks/useStore'
 import {
   formatCurrency, displayValue, mapStayTypeLabel,
-  formatCheckInDateTime, formatCheckOutDateTime,
+  formatCheckInDateTime, formatCheckOutDateTime, matchSearch,
 } from '../utils/helpers'
 import PageToolbar from '../components/PageToolbar'
 import { filterFieldSx, toolbarSearchCompactSx } from '../utils/layout'
@@ -63,13 +63,9 @@ const Customers = () => {
 
   const filtered = useMemo(() => {
     let rows = enrichedCustomers
-    const q = search.toLowerCase().trim()
+    const q = search.trim()
     if (q) {
-      rows = rows.filter((c) =>
-        c.name?.toLowerCase().includes(q) ||
-        c.phone?.includes(q) ||
-        c.aadhaar?.includes(q),
-      )
+      rows = rows.filter((c) => matchSearch(q, c.name, c.phone, c.aadhaar, c.roomNumber, c.bedNumber))
     }
     if (checkInDate) rows = rows.filter((c) => c.checkInDate === checkInDate)
     return rows
@@ -169,7 +165,7 @@ const Customers = () => {
         )}
       />
 
-      <MuiDataGrid rows={filtered} columns={columns} compactColumns={compactColumns} pageSize={10} noHorizontalScroll />
+      <MuiDataGrid rows={filtered} columns={columns} compactColumns={compactColumns} pageSize={10} noHorizontalScroll filterKey={`${search}|${checkInDate}`} />
 
       <RightDrawer
         open={viewOpen}

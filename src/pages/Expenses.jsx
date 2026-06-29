@@ -10,7 +10,7 @@ import DrawerFormStack from '../components/DrawerFormStack'
 import { useExpenses, useAppDispatch } from '../hooks/useStore'
 import { loadExpenses } from '../services/dataService'
 import { expensesApi } from '../services/endpoints'
-import { formatCurrency, formatDate, getImageSrc } from '../utils/helpers'
+import { formatCurrency, formatDate } from '../utils/helpers'
 import { fileStateFromUrl, resolveImageForSubmit } from '../utils/fileHelpers'
 import PageToolbar from '../components/PageToolbar'
 import { filterFieldSx, fieldSx, primaryButtonSx, expenseFilterFieldSx, toolbarButtonSx } from '../utils/layout'
@@ -57,7 +57,7 @@ const Expenses = () => {
   const updateForm = (patch) => setForm((prev) => ({ ...prev, ...patch }))
 
   const filteredExpenses = useMemo(() => {
-    let result = expensesList
+    let result = Array.isArray(expensesList) ? expensesList : []
 
     if (searchDescription) {
       result = result.filter((e) =>
@@ -70,7 +70,11 @@ const Expenses = () => {
       result = result.filter((e) => e.date === filterDate)
     }
 
-    return result.sort((a, b) => new Date(b.date) - new Date(a.date))
+    return result.sort((a, b) => {
+      const ta = a.date ? new Date(a.date).getTime() : 0
+      const tb = b.date ? new Date(b.date).getTime() : 0
+      return (Number.isNaN(tb) ? 0 : tb) - (Number.isNaN(ta) ? 0 : ta)
+    })
   }, [expensesList, filterDate, searchDescription])
 
   const tableRows = useMemo(

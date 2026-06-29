@@ -2,7 +2,7 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const { env } = require('../config/env')
-const uploadRoot = path.join(__dirname, '../', env.uploadDir)
+const uploadRoot = env.uploadRoot
 
 const SUBDIRS = {
   photo: 'customers',
@@ -22,7 +22,7 @@ Object.values(SUBDIRS).forEach((sub) => ensureDir(path.join(uploadRoot, sub)))
 
 const storage = multer.diskStorage({
   destination: (req, _file, cb) => {
-    const field = req.body?.field || 'photo'
+    const field = req.body?.field || req.query?.field || 'photo'
     const subdir = SUBDIRS[field] || 'identity-proofs'
     const dest = path.join(uploadRoot, subdir)
     ensureDir(dest)

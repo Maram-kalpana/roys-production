@@ -402,6 +402,22 @@ const createTenant = async (data) => {
       ],
     )
 
+    if (advancePaid > 0) {
+      await conn.execute(
+        `INSERT INTO monthly_payment_splits (id, monthly_payment_id, amount, payment_mode, transaction_id, payment_date, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          generateId('split'),
+          paymentId,
+          advancePaid,
+          data.paymentType || 'Cash',
+          null,
+          data.paymentDate || checkInDate,
+          'Advance / Security Deposit',
+        ],
+      )
+    }
+
     await conn.execute('UPDATE beds SET status="occupied", customer_id=? WHERE id=?', [customerId, bed.id])
     await conn.commit()
     return getTenant(tenantId)

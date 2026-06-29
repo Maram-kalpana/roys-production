@@ -68,22 +68,29 @@ export const displayValue = (value, fallback = '—') => {
   return value
 }
 
-/** True for http(s), /uploads/, data:image/, and blob: preview URLs. */
-export const isValidImageUrl = (url) =>
-  typeof url === 'string' &&
-  url.length > 4 &&
-  (
-    url.startsWith('http') ||
-    url.startsWith('data:image/') ||
-    url.startsWith('/uploads/') ||
-    url.startsWith('blob:')
-  )
+/** Case-insensitive match across one or more fields (safe for numbers). */
+export const matchSearch = (query, ...fields) => {
+  const q = String(query ?? '').toLowerCase().trim()
+  if (!q) return true
+  return fields.some((field) => String(field ?? '').toLowerCase().includes(q))
+}
 
 /** Normalize image src for <img> — relative /uploads/ paths work via Vite proxy. */
 export const getImageSrc = (url) => {
-  if (!isValidImageUrl(url)) return null
-  return url
+  if (!url || typeof url !== 'string') return null
+  const trimmed = url.trim()
+  if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return null
+  if (trimmed.startsWith('blob:')) return null
+  if (trimmed.startsWith('data:image/')) return trimmed
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
+  if (trimmed.startsWith('uploads/')) return `/${trimmed}`
+  if (trimmed.startsWith('/uploads/')) return trimmed
+  return null
 }
+
+/** True for http(s), /uploads/, data:image/, and blob: preview URLs. */
+export const isValidImageUrl = (url) =>
+  Boolean(getImageSrc(url) || (typeof url === 'string' && url.trim().startsWith('blob:')))
 
 const COMMON_MENU = [
   { label: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' },

@@ -13,7 +13,7 @@ import CustomerDetailCards from '../components/CustomerDetailCards'
 import { MergedCell, VerticalActions, CompactIconButton } from '../components/tableCells'
 import { useAuth, useAppDispatch, useHotel, useBookings, useCustomers, useMonthlyPayments } from '../hooks/useStore'
 import { useVacancyOptions } from '../hooks/useVacancyOptions'
-import { formatCurrency, ROLES, getPaymentStatus, formatStayDuration } from '../utils/helpers'
+import { formatCurrency, ROLES, getPaymentStatus, formatStayDuration, matchSearch } from '../utils/helpers'
 import PageToolbar from '../components/PageToolbar'
 import { filterFieldSx, primaryButtonSx, toolbarEqualFieldSx, toolbarButtonSx } from '../utils/layout'
 import { filterVacantBeds, normId } from '../utils/vacancyHelpers'
@@ -121,13 +121,9 @@ const BookingsContent = () => {
         }
       })
 
-    const q = search.toLowerCase().trim()
+    const q = search.trim()
     if (q) {
-      rows = rows.filter((r) =>
-        r.customerName?.toLowerCase().includes(q) ||
-        r.phone?.includes(q) ||
-        String(r.roomNumber).includes(q),
-      )
+      rows = rows.filter((r) => matchSearch(q, r.customerName, r.phone, r.roomNumber, r.bedNumber, r.floorNumber))
     }
     if (bookingDate) {
       rows = rows.filter((r) => {
@@ -508,7 +504,7 @@ const BookingsContent = () => {
         )}
       />
 
-      <MuiDataGrid rows={tableRows} columns={columns} compactColumns={compactColumns} pageSize={10} noHorizontalScroll />
+      <MuiDataGrid rows={tableRows} columns={columns} compactColumns={compactColumns} pageSize={10} noHorizontalScroll filterKey={`${search}|${bookingDate}|${paymentFilter}`} />
 
       {vacancy.error && (
         <Typography variant="body2" color="error" sx={{ mb: 1 }}>
