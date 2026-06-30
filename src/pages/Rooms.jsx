@@ -190,10 +190,13 @@ const Rooms = () => {
   }
 
   const handleSave = async () => {
-    if (!form.floorNumber || !form.roomNumber || !form.acType) {
-      toast.error('Please fill floor number, room number, and room type')
-      return
-    }
+    // console.log('DEBUG form before validation:', JSON.stringify(form))
+    const isEmpty = (v) => v === '' || v === null || v === undefined
+
+if (isEmpty(form.floorNumber) || isEmpty(form.roomNumber) || isEmpty(form.acType)) {
+  toast.error('Please fill floor number, room number, and room type')
+  return
+}
     if (!form.beds.length) {
       toast.error('Add at least one bed')
       return
