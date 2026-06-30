@@ -71,7 +71,7 @@ const Login = () => {
           />
           <div className="max-w-lg">
             <h1 className="text-[2.75rem] font-bold font-[Poppins] leading-[1.15] text-white mb-5">
-              Grand Luxury Hotel Management
+              Grand Luxury Hostel Management
             </h1>
             <p className="text-blue-100/90 text-lg leading-relaxed mb-8">
               Streamline bookings, manage rooms, track payments, and run daily operations from one professional ERP dashboard.
@@ -99,7 +99,7 @@ const Login = () => {
             <div className="px-8 pt-8 pb-8">
               <div className="mb-7">
                 <h2 className="text-2xl font-bold text-[#0B1F4D] font-[Poppins]">Welcome back</h2>
-                <p className="text-slate-500 mt-1.5 text-sm">Sign in to your hotel management portal</p>
+                <p className="text-slate-500 mt-1.5 text-sm">Sign in to your hostel management portal</p>
               </div>
 
               <div className="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
@@ -191,7 +191,7 @@ const Login = () => {
           </div>
 
           <p className="text-center text-xs text-slate-400 mt-6">
-            Secure access for authorized hotel staff only
+            Secure access for authorized hostel staff only
           </p>
         </motion.div>
       </div>

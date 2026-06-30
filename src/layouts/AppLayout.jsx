@@ -37,6 +37,8 @@ const AppLayout = () => {
             overflow: 'auto',
             minHeight: 0,
             minWidth: 0,
+            WebkitOverflowScrolling: 'touch',
+            pb: { xs: 'env(safe-area-inset-bottom, 0px)', md: 0 },
             ...hideScrollbarSx,
           }}
         >

@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Box, IconButton, Select, MenuItem, Typography, useMediaQuery } from '@mui/material'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { horizontalScrollbarSx } from '../utils/layout'
 
 const BORDER = '#cbd5e1'
 const COMPACT_BREAKPOINT = '(max-width:1023px)'
+const MOBILE_LAYOUT = '(max-width:899px)'
+/** Space reserved above fixed mobile pagination bar */
+const MOBILE_PAGINATION_HEIGHT = 52
 
 const getTableMinWidth = (columns) =>
   columns.reduce((sum, col) => sum + (col.width || col.minWidth || 120), 0)
@@ -50,12 +54,20 @@ const PlainTable = ({
 }) => {
   const isCompact = useMediaQuery(COMPACT_BREAKPOINT)
   const isMobile = useMediaQuery('(max-width:767px)')
+  const isMobileLayout = useMediaQuery(MOBILE_LAYOUT)
   const activeColumns = isCompact && compactColumns?.length ? compactColumns : columns
   const useCardGrid = mobileGrid && isMobile && !compactColumns?.length
   const compactTable = isCompact && !!compactColumns?.length
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(pageSize)
+
+  useEffect(() => {
+    if (isMobileLayout && rowsPerPage > 5) {
+      setRowsPerPage(5)
+      setPage(0)
+    }
+  }, [isMobileLayout])
 
   useEffect(() => {
     setPage(0)
@@ -72,8 +84,95 @@ const PlainTable = ({
   const showPagination = !hidePagination && totalRows > rowsPerPage
   const dataColumns = activeColumns.filter((c) => c.field !== 'actions')
 
+  const mobilePaginationBar = showPagination && isMobileLayout ? (
+    <Box
+      sx={{
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 1200,
+        bgcolor: '#fff',
+        borderTop: `1px solid ${BORDER}`,
+        boxShadow: '0 -4px 12px rgba(15, 23, 42, 0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 0.75,
+        px: 1.5,
+        py: 0.75,
+        minHeight: MOBILE_PAGINATION_HEIGHT,
+        pb: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+        <Typography component="span" variant="caption" sx={{ color: '#94a3b8', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>
+          Rows
+        </Typography>
+        <Select
+          size="small"
+          variant="standard"
+          disableUnderline
+          value={rowsPerPage}
+          onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0) }}
+          sx={{ fontSize: '0.8125rem', minWidth: 36, fontWeight: 600 }}
+          aria-label="Rows per page"
+        >
+          {[5, 10, 25, 50].map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
+        </Select>
+      </Box>
+
+      <Typography
+        variant="body2"
+        sx={{
+          color: '#475569',
+          fontSize: '0.75rem',
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          textAlign: 'center',
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        {`${start + 1}–${Math.min(start + rowsPerPage, totalRows)} of ${totalRows}`}
+      </Typography>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+        <IconButton
+          size="small"
+          onClick={() => goToPage(safePage - 1)}
+          disabled={safePage === 0}
+          aria-label="Previous page"
+          sx={{ p: 0.75, bgcolor: safePage === 0 ? 'transparent' : '#f1f5f9' }}
+        >
+          <ChevronLeft size={20} />
+        </IconButton>
+        <Typography variant="body2" sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#0f172a', minWidth: 32, textAlign: 'center' }}>
+          {safePage + 1}/{totalPages}
+        </Typography>
+        <IconButton
+          size="small"
+          onClick={() => goToPage(safePage + 1)}
+          disabled={safePage >= totalPages - 1}
+          aria-label="Next page"
+          sx={{ p: 0.75, bgcolor: safePage >= totalPages - 1 ? 'transparent' : '#f1f5f9' }}
+        >
+          <ChevronRight size={20} />
+        </IconButton>
+      </Box>
+    </Box>
+  ) : null
+
   return (
-    <Box sx={{ width: '100%', minWidth: 0 }}>
+    <Box
+      sx={{
+        width: '100%',
+        minWidth: 0,
+        pb: showPagination && isMobileLayout
+          ? `calc(${MOBILE_PAGINATION_HEIGHT}px + env(safe-area-inset-bottom, 0px) + 8px)`
+          : 0,
+      }}
+    >
       {useCardGrid ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {pageRows.length === 0 ? (
@@ -198,7 +297,7 @@ const PlainTable = ({
                           key={col.field}
                           sx={{
                             px: compactTable ? 1 : (noHorizontalScroll ? 1 : 2),
-                            py: compactTable ? 0.75 : (noHorizontalScroll ? 1 : 1.25),
+                            py: compactTable ? (isMobileLayout ? 0.5 : 0.75) : (noHorizontalScroll ? 1 : 1.25),
                             fontSize: compactTable ? '0.75rem' : '0.8125rem',
                             color: '#334155',
                             borderBottom: isLastRow ? 'none' : `1px solid ${BORDER}`,
@@ -221,26 +320,71 @@ const PlainTable = ({
         </Box>
       )}
 
-      {showPagination && (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, pt: 2, pb: 0.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8125rem' }}>Rows per page:</Typography>
-            <Select size="small" variant="standard" disableUnderline value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0) }} sx={{ fontSize: '0.8125rem', minWidth: 48 }}>
-              {[5, 10, 25, 50].map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
-            </Select>
+      {showPagination && !isMobileLayout && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+            pt: 2,
+            pb: 0.5,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              gap: 1,
+              flexWrap: 'wrap',
+              minWidth: 0,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+              <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+                Rows per page:
+              </Typography>
+              <Select
+                size="small"
+                variant="standard"
+                disableUnderline
+                value={rowsPerPage}
+                onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0) }}
+                sx={{ fontSize: '0.8125rem', minWidth: 48 }}
+              >
+                {[5, 10, 25, 50].map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
+              </Select>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+              {totalRows === 0 ? '0 of 0' : `${start + 1}–${Math.min(start + rowsPerPage, totalRows)} of ${totalRows}`}
+            </Typography>
           </Box>
-          <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8125rem' }}>
-            {totalRows === 0 ? '0 of 0' : `${start + 1}–${Math.min(start + rowsPerPage, totalRows)} of ${totalRows}`}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-            <IconButton size="small" onClick={() => goToPage(0)} disabled={safePage === 0}><ChevronsLeft size={17} /></IconButton>
-            <IconButton size="small" onClick={() => goToPage(safePage - 1)} disabled={safePage === 0}><ChevronLeft size={17} /></IconButton>
-            <Typography variant="body2" sx={{ mx: 1, fontSize: '0.8125rem' }}>Page {safePage + 1} of {totalPages}</Typography>
-            <IconButton size="small" onClick={() => goToPage(safePage + 1)} disabled={safePage >= totalPages - 1}><ChevronRight size={17} /></IconButton>
-            <IconButton size="small" onClick={() => goToPage(totalPages - 1)} disabled={safePage >= totalPages - 1}><ChevronsRight size={17} /></IconButton>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.25 }}>
+            <IconButton size="small" onClick={() => goToPage(0)} disabled={safePage === 0} aria-label="First page">
+              <ChevronsLeft size={17} />
+            </IconButton>
+            <IconButton size="small" onClick={() => goToPage(safePage - 1)} disabled={safePage === 0} aria-label="Previous page">
+              <ChevronLeft size={17} />
+            </IconButton>
+            <Typography variant="body2" sx={{ mx: 1, fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+              Page {safePage + 1} of {totalPages}
+            </Typography>
+            <IconButton size="small" onClick={() => goToPage(safePage + 1)} disabled={safePage >= totalPages - 1} aria-label="Next page">
+              <ChevronRight size={17} />
+            </IconButton>
+            <IconButton size="small" onClick={() => goToPage(totalPages - 1)} disabled={safePage >= totalPages - 1} aria-label="Last page">
+              <ChevronsRight size={17} />
+            </IconButton>
           </Box>
         </Box>
       )}
+
+      {mobilePaginationBar && typeof document !== 'undefined'
+        ? createPortal(mobilePaginationBar, document.body)
+        : null}
     </Box>
   )
 }

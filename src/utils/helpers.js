@@ -58,7 +58,7 @@ export const LOGIN_CREDENTIALS = {
   [ROLES.ADMIN]: {
     username: 'admin',
     password: 'Admin@123',
-    name: 'Hotel Admin',
+    name: 'Hostel Admin',
     id: 'admin-1',
   },
 }
